@@ -1,6 +1,4 @@
-import { type AppType } from "next/dist/shared/lib/utils";
-
-import "~/styles/globals.css";
+"use client";
 import { WagmiConfig, createClient } from "wagmi";
 import { ConnectKitProvider, getDefaultClient } from "connectkit";
 
@@ -10,14 +8,10 @@ const client = createClient(
   })
 );
 
-const MyApp: AppType = ({ Component, pageProps }) => {
+export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiConfig client={client}>
-      <ConnectKitProvider>
-        <Component {...pageProps} />;
-      </ConnectKitProvider>
+      <ConnectKitProvider>{children}</ConnectKitProvider>
     </WagmiConfig>
   );
-};
-
-export default MyApp;
+}
