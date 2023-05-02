@@ -1,12 +1,14 @@
-import Providers from "~/providers";
 import "~/styles/globals.css";
+
+import RootLayout from "~/features/layout/components/RootLayout";
+import Providers from "~/providers";
 
 export const metadata = {
   title: "Yield Mate",
   description: "Limit swaps just got smarter",
 };
 
-export default function RootLayout({
+export default function Layout({
   // Layouts must accept a children prop.
   // This will be populated with nested layouts or pages
   children,
@@ -15,9 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <Providers>{children}</Providers>
-      </body>
+      <Providers>
+        <RootLayout>{children}</RootLayout>
+      </Providers>
     </html>
   );
 }
