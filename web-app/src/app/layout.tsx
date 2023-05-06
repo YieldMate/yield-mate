@@ -16,7 +16,7 @@ export default function Layout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="business">
       <Providers>
         <RootLayout>{children}</RootLayout>
       </Providers>
