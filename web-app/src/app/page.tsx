@@ -1,3 +1,9 @@
+import Swap from "~/features/swap/components/Swap";
+
 export default function HomePage() {
-  return <span className="text-2xl">Hello world</span>;
+  return (
+    <main className="flex h-full w-full items-center justify-center overflow-hidden">
+      <Swap />
+    </main>
+  );
 }

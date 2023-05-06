@@ -11,7 +11,7 @@ const client = createClient(
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiConfig client={client}>
-      <ConnectKitProvider>{children}</ConnectKitProvider>
+      <ConnectKitProvider theme="soft">{children}</ConnectKitProvider>
     </WagmiConfig>
   );
 }

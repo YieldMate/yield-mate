@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 
 import RootLayout from "~/features/layout/components/RootLayout";
-import Providers from "~/providers";
+import Providers from "~/Providers";
 
 export const metadata = {
   title: "Yield Mate",
