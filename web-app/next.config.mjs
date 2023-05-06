@@ -7,8 +7,10 @@ await import("./src/env.mjs");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  experimental: {
-    appDir: true
-  }
+  webpack: (config) => {
+    // fix for @walletconnect broken dependencies
+    config.externals.push("pino-pretty", "lokijs", "encoding");
+    return config;
+  },
 };
 export default config;
