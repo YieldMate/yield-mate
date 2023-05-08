@@ -38,11 +38,11 @@ export default function Navbar() {
           </ul>
         </div>
       </div>
-      <div className="navbar-center">
-        <a className="btn-ghost btn text-xl normal-case">
+      <div className="navbar-center prose">
+        <h1>
           Yield
           <span className="text-primary">Mate</span>
-        </a>
+        </h1>
       </div>
       <div className="navbar-end">
         <Wallet />

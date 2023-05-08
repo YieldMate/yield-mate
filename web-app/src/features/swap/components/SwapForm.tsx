@@ -85,7 +85,7 @@ export default function SwapForm() {
         </label>
       </div>
 
-      <div className="card-actions mt-8">
+      <div className="card-actions mt-8 justify-end">
         <button className="btn-primary btn" disabled={!isValid}>
           Place order
         </button>

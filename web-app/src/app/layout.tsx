@@ -1,5 +1,7 @@
-import "~/styles/globals.css";
+import "@fontsource/source-sans-pro";
+import "@fontsource/oswald";
 
+import "~/styles/globals.css";
 import RootLayout from "~/features/layout/components/RootLayout";
 import Providers from "~/Providers";
 
