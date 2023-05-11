@@ -27,13 +27,13 @@ export default function Navbar() {
             className="dropdown-content menu rounded-box menu-compact mt-3 w-52 bg-base-100 p-2 shadow"
           >
             <li>
-              <a>Homepage</a>
+              <a>New order</a>
             </li>
             <li>
-              <a>Portfolio</a>
+              <a>My orders</a>
             </li>
             <li>
-              <a>About</a>
+              <a>Governance</a>
             </li>
           </ul>
         </div>
