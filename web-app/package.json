@@ -6,9 +6,11 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "deploy": "fleek sites deploy"
   },
   "dependencies": {
+    "@fleekxyz/cli": "^0.3.0",
     "@fontsource/oswald": "^4.5.12",
     "@fontsource/source-sans-pro": "^4.5.11",
     "@t3-oss/env-nextjs": "^0.2.1",
