@@ -1,3 +1,4 @@
+import TokenModal from "~/features/swap/components/TokenModal";
 import Navbar from "./Navbar";
 
 export default function RootLayout({
@@ -8,6 +9,7 @@ export default function RootLayout({
   return (
     <body className="flex h-screen flex-col items-center justify-start overflow-x-hidden bg-base-300">
       <Navbar />
+      <TokenModal />
       {children}
     </body>
   );
