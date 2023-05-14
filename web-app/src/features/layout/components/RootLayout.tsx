@@ -1,5 +1,6 @@
 import TokenModal from "~/features/swap/components/TokenModal";
 import Navbar from "./Navbar";
+import LearnMoreModal from "./LearnMoreModal";
 
 export default function RootLayout({
   children,
@@ -10,6 +11,7 @@ export default function RootLayout({
     <body className="flex h-screen flex-col items-center justify-start overflow-x-hidden bg-base-300">
       <Navbar />
       <TokenModal />
+      <LearnMoreModal />
       {children}
     </body>
   );
