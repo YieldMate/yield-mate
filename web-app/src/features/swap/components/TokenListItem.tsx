@@ -7,6 +7,8 @@ import {
   paymentTokenAtom,
   targetTokenAtom,
 } from "../state/modal";
+import Balance from "~/features/wallet/components/Balance";
+import useIsTestnet from "~/features/wallet/hooks/useIsTestnet";
 
 export type TokenListItemProps = {
   token: Token;
@@ -16,6 +18,13 @@ export default function TokenListItem({ token }: TokenListItemProps) {
   const [paymentToken, setPaymentToken] = useAtom(paymentTokenAtom);
   const [targetToken, setTargetToken] = useAtom(targetTokenAtom);
   const modalType = useAtomValue(modalTypeAtom);
+
+  const isTestnet = useIsTestnet();
+
+  const address = isTestnet ? token.addressTestnet : token.address;
+  const explorerUrl = isTestnet
+    ? `https://mumbai.polygonscan.com/token/${address}`
+    : `https://polygonscan.com/token/${address}`;
 
   const selected =
     modalType === "payment"
@@ -40,14 +49,16 @@ export default function TokenListItem({ token }: TokenListItemProps) {
       } `}
       onClick={onSelect}
     >
-      <div className="stat-title">In wallet: 1.00</div>
+      <div className="text- stat-title overflow-hidden">
+        Balance: <Balance token={token} />
+      </div>
       <div className="stat-value">{token.symbol}</div>
       <a
         className="link-hover stat-desc link overflow-hidden text-ellipsis text-secondary"
-        href={`https://polygonscan.com/token/${token.address}`}
+        href={explorerUrl}
         target="_blank"
       >
-        {token.address}
+        {address}
       </a>
       <div className="stat-figure text-secondary">
         <div className="avatar h-16 w-16">

@@ -1,5 +1,6 @@
 export type Token = {
-  address: string;
+  address: `0x${string}`;
+  addressTestnet: `0x${string}`;
   symbol: string;
   icon: string;
 };

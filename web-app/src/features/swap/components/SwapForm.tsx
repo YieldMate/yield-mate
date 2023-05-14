@@ -7,16 +7,21 @@ import {
   paymentTokenAtom,
   targetTokenAtom,
 } from "../state/modal";
+import Balance from "~/features/wallet/components/Balance";
+import { type ChangeEvent } from "react";
 
 type Inputs = {
   paymentAmount: string;
   targetAmount: string;
 };
+const VALID_DECIMAL_REGEX = /^(?:0|[1-9]\d{0,17})(?:\.\d{0,24})?$/;
 
 export default function SwapForm() {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { isValid },
   } = useForm<Inputs>({
     mode: "all",
@@ -26,18 +31,43 @@ export default function SwapForm() {
   const paymentToken = useAtomValue(paymentTokenAtom);
   const targetToken = useAtomValue(targetTokenAtom);
 
+  const paymentAmount = watch("paymentAmount");
+  const targetAmount = watch("targetAmount");
+
+  const onPaymentAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.match(VALID_DECIMAL_REGEX) || e.target.value === "") {
+      return;
+    }
+    return setValue("paymentAmount", paymentAmount);
+  };
+
+  const onTargetAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.match(VALID_DECIMAL_REGEX) || e.target.value === "") {
+      return;
+    }
+    return setValue("targetAmount", targetAmount);
+  };
+
   return (
-    <form onSubmit={void handleSubmit(onSubmit)}>
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div className="form-control">
-        <label className="label">
+        <label htmlFor="payment-mount-input" className="label">
           <span className="label-text">Payment token</span>
         </label>
         <label className="input-group">
           <input
+            id="payment-mount-input"
             type="text"
-            placeholder="0.01"
+            inputMode="decimal"
+            autoComplete="off"
+            autoCorrect="off"
+            placeholder="0.00"
             className="input-bordered input input-lg"
-            {...register("paymentAmount", { required: true })}
+            {...register("paymentAmount", {
+              required: true,
+              onChange: onPaymentAmountChange,
+            })}
           />
           <label
             htmlFor="tokens-modal"
@@ -54,17 +84,29 @@ export default function SwapForm() {
             />
           </label>
         </label>
+        <label className="label">
+          <span className="label-text-alt text-secondary">
+            Balance: <Balance token={paymentToken} />
+          </span>
+        </label>
       </div>
       <div className="form-control">
-        <label className="label">
+        <label htmlFor="target-mount-input" className="label">
           <span className="label-text">Target token</span>
         </label>
         <label className="flex">
           <input
+            id="target-mount-input"
             type="text"
-            placeholder="0.01"
+            inputMode="decimal"
+            autoComplete="off"
+            autoCorrect="off"
+            placeholder="0.00"
             className="input-bordered input input-lg"
-            {...register("targetAmount", { required: true })}
+            {...register("targetAmount", {
+              required: true,
+              onChange: onTargetAmountChange,
+            })}
           />
           <label
             htmlFor="tokens-modal"
@@ -80,6 +122,11 @@ export default function SwapForm() {
               alt={targetToken.symbol}
             />
           </label>
+        </label>
+        <label className="label">
+          <span className="label-text-alt text-secondary">
+            Balance: <Balance token={targetToken} />
+          </span>
         </label>
       </div>
 

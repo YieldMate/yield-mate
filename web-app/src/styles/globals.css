@@ -19,3 +19,7 @@ h5,
 h6 {
   font-family: "Source Sans Pro";
 }
+
+.modal-box {
+  @apply max-w-xl;
+}

@@ -1,10 +1,12 @@
 "use client";
 import { WagmiConfig, createClient } from "wagmi";
 import { ConnectKitProvider, getDefaultClient } from "connectkit";
+import { polygon, polygonMumbai } from "wagmi/chains";
 
 const client = createClient(
   getDefaultClient({
     appName: "Yield Mate",
+    chains: [polygon, polygonMumbai],
   })
 );
 
