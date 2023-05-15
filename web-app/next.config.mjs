@@ -13,6 +13,6 @@ const config = {
     return config;
   },
   output: "export",
-  distDir: 'build'
+  // distDir: 'build'
 };
 export default config;
