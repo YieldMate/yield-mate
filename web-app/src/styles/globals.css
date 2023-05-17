@@ -23,3 +23,7 @@ h6 {
 .modal-box {
   @apply max-w-xl;
 }
+
+.steps .step {
+  @apply text-left;
+}

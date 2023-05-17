@@ -142,7 +142,7 @@ export default function SwapForm() {
               setModalType("payment");
             }}
           >
-            <TokenPreview token={paymentToken} />
+            <TokenPreview showBalance token={paymentToken} />
           </label>
         </div>
         <div className="flex flex-row gap-4">
@@ -197,7 +197,7 @@ export default function SwapForm() {
               setModalType("target");
             }}
           >
-            <TokenPreview token={targetToken} />
+            <TokenPreview showBalance token={targetToken} />
           </label>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 import Wallet from "~/features/wallet/components/Wallet";
 
@@ -27,13 +28,15 @@ export default function Navbar() {
             className="dropdown-content menu rounded-box menu-compact mt-3 w-52 bg-base-100 p-2 shadow"
           >
             <li>
-              <a>New order</a>
+              <Link href="/">New order</Link>
             </li>
             <li>
-              <a>My orders</a>
+              <Link href="/orders">My orders</Link>
             </li>
             <li>
-              <a>Governance</a>
+              <a href="https://snapshot.org/#/yieldmate" target="_blank">
+                Governance
+              </a>
             </li>
           </ul>
         </div>

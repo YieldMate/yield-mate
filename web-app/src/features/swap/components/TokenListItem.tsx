@@ -37,6 +37,7 @@ export default function TokenListItem({ token }: TokenListItemProps) {
       className="basis-1/2 cursor-pointer "
     >
       <TokenPreview
+        showBalance
         token={token}
         className={
           selected ? "bg-base-200 hover:bg-base-300" : "hover:bg-base-200"
