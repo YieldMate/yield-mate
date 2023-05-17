@@ -30,6 +30,22 @@ export default function useOrders() {
         targetAmount: "2",
         status: "withdrawn",
       },
+      {
+        id: "4",
+        paymentToken: "WETH",
+        paymentAmount: "0.0001",
+        targetToken: "BIFI",
+        targetAmount: "1",
+        status: "pending",
+      },
+      {
+        id: "5",
+        paymentToken: "MATIC",
+        paymentAmount: "100",
+        targetToken: "USDC",
+        targetAmount: "123",
+        status: "withdrawn",
+      },
     ] as Order[],
   };
 }
