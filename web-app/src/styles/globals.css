@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Source Sans Pro";
+  background-image: url("/micro_carbon.png");
+  background-repeat: repeat;
+}
+
+h1 {
+  font-family: "Oswald";
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Source Sans Pro";
+}
+
+.modal-box {
+  @apply max-w-xl;
+}
+
+.steps .step {
+  @apply text-left;
+}
