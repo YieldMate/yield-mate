@@ -6,6 +6,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {AssetInfo} from "./lib/Objects.sol";
 import "./lib/Errors.sol";
+import "forge-std/console.sol";
 
 contract OrderManager {
     using Counters for Counters.Counter;
@@ -52,7 +53,7 @@ contract OrderManager {
         // TODO: execute orders
     }
 
-    function getEligbleOrders() external view returns (AssetInfo[] memory) {
+    function getEligbleOrders() external view returns (bytes memory) {
         // get current orders
         AssetInfo[] memory _orders = new AssetInfo[](orders.length());
 
@@ -60,7 +61,10 @@ contract OrderManager {
             _orders[i] = ordersMapping[orders.at(i)];
         }
 
-        return _orders;
-        // determine which orders meet conditions and return them
+        // TODO: determine which orders meet conditions and return them
+
+        // console.logBytes(abi.encode(_orders));
+
+        // return abi.encode(_orders);
     }
 }
