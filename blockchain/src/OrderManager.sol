@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Counters} from "@openzeppelin/utils/Counters.sol";
-import {EnumerableSet} from "@openzeppelin/utils/structs/EnumerableSet.sol";
+import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {AssetInfo} from "./lib/Objects.sol";
 import "./lib/Errors.sol";
