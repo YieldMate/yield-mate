@@ -4,10 +4,10 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import "forge-std/StdUtils.sol";
 
-import "../src/OrderManager.sol";
-import "../src/mock/MockToken.sol";
+import "../../src/libs/order-manager/OrderManager.sol";
+import "../../src/mocks/MockToken.sol";
 
-contract YieldMateTest is Test {
+contract OrderManagerTest is Test {
     OrderManager public manager;
     MockToken public mockToken;
 
