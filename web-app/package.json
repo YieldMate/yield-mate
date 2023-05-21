@@ -24,6 +24,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.43.9",
+    "react-wrap-balancer": "^0.5.0",
     "wagmi": "^0.12.12",
     "zod": "^3.21.4"
   },
