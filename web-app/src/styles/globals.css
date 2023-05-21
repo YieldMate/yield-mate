@@ -30,3 +30,7 @@ h1 {
 .steps .step {
   @apply text-left;
 }
+
+.stat-value {
+  font-size: 2rem;
+}

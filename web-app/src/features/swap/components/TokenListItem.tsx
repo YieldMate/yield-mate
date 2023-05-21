@@ -34,7 +34,7 @@ export default function TokenListItem({ token }: TokenListItemProps) {
     <label
       htmlFor="tokens-modal"
       onClick={onSelect}
-      className="basis-1/2 cursor-pointer "
+      className="basis-1/2 cursor-pointer"
     >
       <TokenPreview
         showBalance
