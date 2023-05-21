@@ -29,7 +29,7 @@ contract Chainlink is AutomationCompatibleInterface {
         override
         returns (bool upkeepNeeded, bytes memory /* performData */)
     {
-        // AssetInfo[] memory _eligbleOrders = orderManager.getEligbleOrders();
+        // OrderInfo[] memory _eligbleOrders = orderManager.getEligbleOrders();
         upkeepNeeded = (block.timestamp - lastTimeStamp) > interval;
         // We don't use the checkData in this example. The checkData is defined when the Upkeep was registered.
     }

@@ -4,7 +4,8 @@ pragma solidity ^0.8.13;
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {AssetInfo} from "./lib/Objects.sol";
+import {OrderInfo, OrderStatus, OrderType} from "./lib/Objects.sol";
+import {PriceEngine} from "../price-engine/PriceEngine.sol";
 import "./lib/Errors.sol";
 import "forge-std/console.sol";
 
@@ -12,23 +13,31 @@ contract OrderManager {
     using Counters for Counters.Counter;
     using EnumerableSet for EnumerableSet.UintSet;
 
+    PriceEngine private engine;
+
     Counters.Counter orderId;
 
     mapping(address => uint256) internal userToOrderMapping;
-    mapping(uint256 => AssetInfo) internal ordersMapping;
+    mapping(uint256 => OrderInfo) internal ordersMapping;
     EnumerableSet.UintSet internal orders; // we store here orderIds'
 
+    constructor(address _engine) {
+        engine = PriceEngine(_engine);
+    }
+
     function addOrder(
-        address _token,
-        uint256 _amount,
-        uint256 _price
+        address _tokenIn,
+        uint256 _amountIn,
+        uint256 _targetPrice,
+        address _assetOut,
+        OrderType _orderType
     ) external returns (uint256) {
-        (bool success, ) = _token.call(
+        (bool success, ) = _tokenIn.call(
             abi.encodeWithSignature(
                 "transferFrom(address,address,uint256)",
                 msg.sender,
                 address(this),
-                _amount
+                _amountIn
             )
         );
 
@@ -40,7 +49,14 @@ contract OrderManager {
         userToOrderMapping[msg.sender] = _orderId;
 
         // save the detail of order
-        ordersMapping[_orderId] = AssetInfo({asset: _token, price: _price});
+        ordersMapping[_orderId] = OrderInfo({
+            assetIn: _tokenIn,
+            targetPrice: _targetPrice,
+            assetOut: _assetOut,
+            amountIn: _amountIn,
+            status: OrderStatus({executed: false, amountOut: 0}),
+            orderType: _orderType
+        });
 
         // add orderId to orders array
         orders.add(_orderId);
@@ -55,10 +71,12 @@ contract OrderManager {
 
     function getEligbleOrders() external view returns (bytes memory) {
         // get current orders
-        AssetInfo[] memory _orders = new AssetInfo[](orders.length());
+        OrderInfo[] memory _orders = new OrderInfo[](orders.length());
 
         for (uint256 i = 0; i < orders.length(); i++) {
-            _orders[i] = ordersMapping[orders.at(i)];
+            OrderInfo memory _orderInfo = ordersMapping[orders.at(i)];
+
+            // _orderInfo.
         }
 
         // TODO: determine which orders meet conditions and return them
