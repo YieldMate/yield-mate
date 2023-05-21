@@ -28,7 +28,7 @@ export default function Navbar() {
             className="dropdown-content menu rounded-box menu-compact mt-3 w-52 bg-base-100 p-2 shadow"
           >
             <li>
-              <Link href="/">New order</Link>
+              <Link href="/new-order">New order</Link>
             </li>
             <li>
               <Link href="/orders">My orders</Link>
@@ -41,12 +41,12 @@ export default function Navbar() {
           </ul>
         </div>
       </div>
-      <div className="navbar-center prose">
+      <Link href="/" className="navbar-center prose">
         <h1>
           Yield
           <span className="text-primary">Mate</span>
         </h1>
-      </div>
+      </Link>
       <div className="navbar-end">
         <Wallet />
       </div>

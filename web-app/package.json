@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@fleekxyz/cli": "^0.3.0",
-    "@fontsource/oswald": "^4.5.12",
-    "@fontsource/source-sans-pro": "^4.5.11",
+    "@fontsource/quattrocento": "^4.5.10",
+    "@fontsource/questrial": "^4.5.11",
     "@t3-oss/env-nextjs": "^0.2.1",
     "connectkit": "^1.2.3",
     "daisyui": "^2.51.6",
@@ -24,6 +24,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.43.9",
+    "react-wrap-balancer": "^0.5.0",
     "wagmi": "^0.12.12",
     "zod": "^3.21.4"
   },

@@ -3,21 +3,24 @@
 @tailwind utilities;
 
 body {
-  font-family: "Source Sans Pro";
-  background-image: url("/micro_carbon.png");
+  font-family: "Questrial";
   background-repeat: repeat;
 }
 
-h1 {
-  font-family: "Oswald";
-}
-
+h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-family: "Source Sans Pro";
+  font-family: "Quattrocento";
+}
+
+h1 {
+  font-size: 3.75rem;
+  letter-spacing: 0.05rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .modal-box {
@@ -26,4 +29,8 @@ h6 {
 
 .steps .step {
   @apply text-left;
+}
+
+.stat-value {
+  font-size: 2rem;
 }
