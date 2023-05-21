@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@fleekxyz/cli": "^0.3.0",
-    "@fontsource/oswald": "^4.5.12",
-    "@fontsource/source-sans-pro": "^4.5.11",
+    "@fontsource/quattrocento": "^4.5.10",
+    "@fontsource/questrial": "^4.5.11",
     "@t3-oss/env-nextjs": "^0.2.1",
     "connectkit": "^1.2.3",
     "daisyui": "^2.51.6",
