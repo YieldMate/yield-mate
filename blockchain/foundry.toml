@@ -10,16 +10,3 @@ remappings = [
     "@uniswap/v3-periphery/=lib/v3-periphery/",
     "smartcontractkit/chainlink/=lib/chainlink"
 ] # See more config options https://github.com/foundry-rs/foundry/tree/master/config
-
-[compiler]
-default = "0.8.0"
-
-[[compiler.versions]]
-version = "0.8.0"
-command = "solc"
-dockerImage = "ethereum/solc:0.8.0"
-
-[[compiler.versions]]
-version = "0.7.6"
-command = "solc"
-dockerImage = "ethereum/solc:0.7.6"

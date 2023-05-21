@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity 0.8.16;
 
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
@@ -10,7 +10,7 @@ interface IERC20 {
     function decimals() external view returns (uint256);
 }
 
-contract UniswapV3Twap {
+contract PriceEngine {
     address public immutable factory =
         0x1F98431c8aD98523631AE4a59f267346ea31F984;
     uint24 public fee = 3000;
