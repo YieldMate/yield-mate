@@ -1,5 +1,5 @@
-import "@fontsource/source-sans-pro";
-import "@fontsource/oswald";
+import "@fontsource/quattrocento";
+import "@fontsource/questrial";
 
 import "~/styles/globals.css";
 
