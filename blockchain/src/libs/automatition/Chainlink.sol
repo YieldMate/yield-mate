@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.16;
-
+pragma solidity 0.8.20;
 // import {AutomationCompatible} from "chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 import {AutomationCompatibleInterface} from "chainlink/contracts/src/v0.8/interfaces/automation/AutomationCompatibleInterface.sol";
 import {AutomationCompatible} from "chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
