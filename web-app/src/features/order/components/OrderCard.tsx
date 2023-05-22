@@ -2,6 +2,7 @@ import TokenPreview from "~/features/swap/components/TokenPreview";
 import { type Order } from "../types/order";
 import { SUPPORTED_TOKENS } from "~/features/swap/constants/tokens";
 import ArrowsHorizontal from "../assets/ArrowsHorizontal";
+import WithdrawButton from "~/features/withdraw/components/WithdrawButton";
 
 type OrderCardProps = {
   order: Order;
@@ -68,11 +69,7 @@ export default function OrderCard({ order }: OrderCardProps) {
           <label htmlFor="learn-more-modal" className="btn-ghost btn">
             How it works?
           </label>
-          <button className="btn-primary btn" disabled={status === "withdrawn"}>
-            {status === "withdrawn"
-              ? "Withdrawn"
-              : `Withdraw ${status === "pending" ? paymentToken : targetToken}`}
-          </button>
+          <WithdrawButton order={order} />
         </div>
       </div>
     </article>

@@ -2,6 +2,7 @@ import Providers from "~/Providers";
 import LearnMoreModal from "~/features/layout/components/LearnMoreModal";
 import Navbar from "~/features/layout/components/Navbar";
 import TokenModal from "~/features/swap/components/TokenModal";
+import WithdrawModal from "~/features/withdraw/components/WithdrawModal";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,6 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Navbar />
         <TokenModal />
         <LearnMoreModal />
+        <WithdrawModal />
         {children}
       </body>
     </Providers>
