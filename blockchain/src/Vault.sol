@@ -30,6 +30,9 @@ contract Vault is IVault {
 
     /// @dev binds strategy to token address
     mapping (address => Strategy) public resolvers;
+    mapping (address => address[]) public aaveShareHolders;
+    mapping (address => mapping(address => uint256)) public aaveShares;
+
 
     // -----------------------------------------------------------------------
     //                              Constructor
@@ -65,10 +68,12 @@ contract Vault is IVault {
     // -----------------------------------------------------------------------
 
     /// @dev deposits funds via attached strategy for given asset
-    function deposit(address _token, uint256 _amount) external payable {
+    function deposit(address _token, uint256 _amount, address _aToken) external payable {
 
         // shares
         uint256 shares_;
+        uint256 aTokensBeforeSupply_;
+        uint256 aTokensAfterSupply_;
 
         // deposit funds from user to underlying protocol
         Strategy strategy_ = resolvers[_token];
@@ -76,8 +81,14 @@ contract Vault is IVault {
             if (_token == MATIC) {
                 shares_ = AAVE.depositNative(_token, _amount);
             } else {
-                shares_ = AAVE.deposit(_token, _amount);
+                (shares_, aTokensBeforeSupply_, aTokensAfterSupply_) = AAVE.deposit(_token, _amount, _aToken);
             }
+            
+            for shareHolder in aaveShareHolders[_token] {
+                aaveShares[_token][shareHolder] = AAVE.updateShares(aaveShares[_token][shareHolder], aTokensBeforeSupply_, aTokensAfterSupply_);
+            }
+            aaveShares[_token][msg.sender] = shares_
+
         } else if (strategy_ == Strategy.Unsupported) {
             revert UnsupportedStrategy();
         }
