@@ -6,7 +6,7 @@ export default function OrderFilters() {
   const [selectedFilter, setSelectedFilter] = useAtom(ordersFilterAtom);
 
   return (
-    <div className="flex flex-row gap-1">
+    <section className="flex flex-row gap-1 rounded-md bg-base-100 p-6 shadow-xl">
       <button
         type="button"
         onClick={() => setSelectedFilter("all")}
@@ -43,6 +43,6 @@ export default function OrderFilters() {
       >
         Withdrawn
       </button>
-    </div>
+    </section>
   );
 }
