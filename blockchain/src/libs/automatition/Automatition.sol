@@ -5,7 +5,7 @@ import {AutomationCompatibleInterface} from "@chainlink/src/v0.8/interfaces/Auto
 import {AutomationCompatible} from "@chainlink/src/v0.8/AutomationCompatible.sol";
 import {IOrderManager} from "../order-manager/IOrderManager.sol";
 
-contract Chainlink is AutomationCompatibleInterface {
+contract Automatition is AutomationCompatibleInterface {
     // get manager interface
     IOrderManager private orderManager;
 
