@@ -19,7 +19,7 @@ contract OrderManagerTest is Test {
     address USDT = 0xc2132D05D31c914a87C6611C10748AEb04B58e8F;
     address WBTC = 0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6;
     address AVAX = 0x2C89bbc92BD86F8075d1DEcc58C7F4E0107f286b;
-    address LINK = 0xb0897686c545045aFc77CF20eC7A532E3120E0F1;
+    address LINK = 0x53E0bca35eC356BD5ddDFebbD1Fc0fD03FaBad39;
     address UNI = 0xb33EaAd8d922B1083446DC23f610c2567fB5180f;
     address GRT = 0x5fe2B58c013d7601147DcdD68C143A77499f5531;
 
@@ -43,10 +43,8 @@ contract OrderManagerTest is Test {
         uint256 _amountIn,
         uint256 _price,
         OrderType _type
-    ) internal {
-        deal(_tokenIn, _sender, _amountIn + 10000);
-
-        console.log("msg.sender:", _sender);
+    ) internal returns (uint256) {
+        deal(_tokenIn, _sender, _amountIn);
 
         vm.startPrank(_sender);
         address(_tokenIn).call(
@@ -61,9 +59,15 @@ contract OrderManagerTest is Test {
             abi.encodeWithSignature("balanceOf(address)", _sender)
         );
 
-        console.log(abi.decode(data, (uint256)), _amountIn);
-        manager.addOrder(_tokenIn, _tokenOut, _amountIn, _price, _type);
+        uint256 _orderId = manager.addOrder(
+            _tokenIn,
+            _tokenOut,
+            _amountIn,
+            _price,
+            _type
+        );
         vm.stopPrank();
+        return _orderId;
     }
 
     function testAddOrder() public {
@@ -85,13 +89,29 @@ contract OrderManagerTest is Test {
             OrderType.BUY
         );
 
-        // _addOrder(
-        //     address(125),
-        //     AVAX,
-        //     LINK,
-        //     4 * 10 ** 18,
-        //     10 * 10 ** 18,
-        //     OrderType.BUY
-        // );
+        _addOrder(
+            address(124),
+            WBTC,
+            USDT,
+            15 * 10 ** 17,
+            24000 * 10 ** 6,
+            OrderType.SELL
+        );
+
+        uint256 orderId = _addOrder(
+            address(125),
+            WMATIC,
+            LINK,
+            4 * 10 ** 18,
+            10 * 10 ** 18,
+            OrderType.BUY
+        );
+
+        assertEq(orderId, 3);
+    }
+
+    function testGetEligbibleOrders() public returns (uint256[] memory) {
+        testAddOrder();
+        return manager.getEligbleOrders();
     }
 }

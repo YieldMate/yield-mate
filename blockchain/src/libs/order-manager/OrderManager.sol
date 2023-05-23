@@ -2,11 +2,14 @@
 pragma solidity 0.8.19;
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-
 import {OrderInfo, OrderStatus, OrderType, PriceInfo} from "./lib/Objects.sol";
 import {Quoter} from "../price-engine/Quoter.sol";
 import "./lib/Errors.sol";
 import "forge-std/console.sol";
+
+interface IERC20 {
+    function decimals() external view returns (uint8);
+}
 
 contract OrderManager {
     using Counters for Counters.Counter;
@@ -23,6 +26,13 @@ contract OrderManager {
     // pool address to price info struct (last price, updateAt)
     mapping(address => PriceInfo) internal priceMappings;
 
+    modifier isPoolValid(address _tokenIn, address _tokenOut) {
+        if (!quoter.isPoolValid(_tokenIn, _tokenOut)) {
+            revert("pool is not valid");
+        }
+        _;
+    }
+
     constructor(address _quoter) {
         quoter = Quoter(_quoter);
     }
@@ -33,8 +43,7 @@ contract OrderManager {
         uint256 _amountIn,
         uint256 _price,
         OrderType _orderType
-    ) external returns (uint256) {
-        console.log(msg.sender);
+    ) external isPoolValid(_tokenIn, _tokenOut) returns (uint256) {
         (bool success, ) = _tokenIn.call(
             abi.encodeWithSignature(
                 "transferFrom(address,address,uint256)",
@@ -68,23 +77,40 @@ contract OrderManager {
         return _orderId;
     }
 
-    function executeOrders() external {
+    function executeOrders(uint256[] memory _offersIds) external {
         // TODO: execute orders
     }
 
-    function getEligbleOrders() external view returns (uint256[] memory) {
+    function getEligbleOrders()
+        external
+        view
+        returns (uint256[] memory eligbleOrdersIds)
+    {
         uint256 arrLength = orders.length();
-        uint256[] memory eligbleOrdersIds = new uint256[](arrLength);
+        eligbleOrdersIds = new uint256[](arrLength);
 
         uint256 _index = 0;
 
         for (uint256 i = 0; i < arrLength; i++) {
             OrderInfo memory _orderInfo = ordersMapping[orders.at(i)];
-            uint256 _price = quoter.getQuote(
-                _orderInfo.assetIn,
-                _orderInfo.assetOut,
-                _orderInfo.amountIn
-            );
+
+            uint256 _price;
+
+            // if we want to buy tokenB for tokenA we want to know how much 1 tokenB is worth in A (ex. 1000 USDT for WMATIC)
+            if (_orderInfo.orderType == OrderType.BUY) {
+                _price = quoter.getQuote(
+                    _orderInfo.assetOut,
+                    _orderInfo.assetIn,
+                    1 * 10 ** IERC20(_orderInfo.assetOut).decimals()
+                );
+                // we sell - simple
+            } else {
+                _price = quoter.getQuote(
+                    _orderInfo.assetIn,
+                    _orderInfo.assetOut,
+                    1 * 10 ** IERC20(_orderInfo.assetIn).decimals()
+                );
+            }
 
             if (
                 (_orderInfo.orderType == OrderType.SELL &&
@@ -92,17 +118,10 @@ contract OrderManager {
                 (_orderInfo.orderType == OrderType.BUY &&
                     _price <= _orderInfo.targetPrice)
             ) {
-                eligbleOrdersIds[_index] = i;
+                eligbleOrdersIds[_index] = orders.at(i);
                 _index++;
             }
-
-            return eligbleOrdersIds;
         }
-
-        // TODO: determine which orders meet conditions and return them
-
-        // console.logBytes(abi.encode(_orders));
-
-        // return abi.encode(_orders);
+        return eligbleOrdersIds;
     }
 }

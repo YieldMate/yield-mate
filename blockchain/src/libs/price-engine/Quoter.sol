@@ -17,6 +17,13 @@ contract Quoter {
         router = ISwapRouter(_router);
     }
 
+    function isPoolValid(
+        address tokenIn,
+        address tokenOut
+    ) external view returns (bool) {
+        return factory.getPool(tokenIn, tokenOut, poolFee) != address(0);
+    }
+
     function getQuote(
         address tokenIn,
         address tokenOut,
