@@ -18,3 +18,8 @@ struct OrderStatus {
     bool executed;
     uint256 amountOut;
 }
+
+struct PriceInfo {
+    uint256 price;
+    uint256 updatedAt;
+}

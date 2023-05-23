@@ -40,11 +40,13 @@ contract OrderManagerTest is Test {
         address _sender,
         address _tokenIn,
         address _tokenOut,
-        uint256 _price,
         uint256 _amountIn,
+        uint256 _price,
         OrderType _type
     ) internal {
         deal(_tokenIn, _sender, _amountIn + 10000);
+
+        console.log("msg.sender:", _sender);
 
         vm.startPrank(_sender);
         address(_tokenIn).call(
@@ -60,7 +62,7 @@ contract OrderManagerTest is Test {
         );
 
         console.log(abi.decode(data, (uint256)), _amountIn);
-        manager.addOrder(_tokenIn, _tokenOut, _price, _amountIn, _type);
+        manager.addOrder(_tokenIn, _tokenOut, _amountIn, _price, _type);
         vm.stopPrank();
     }
 
@@ -69,8 +71,8 @@ contract OrderManagerTest is Test {
             address(123),
             USDC,
             WMATIC,
-            900000,
             10 * 10 ** 6,
+            900000,
             OrderType.BUY
         );
 
@@ -78,8 +80,8 @@ contract OrderManagerTest is Test {
             address(124),
             USDT,
             WBTC,
+            10 * 10 ** 6,
             26000 * 10 ** 6,
-            10000 * 10 ** 6,
             OrderType.BUY
         );
 

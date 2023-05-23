@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {OrderInfo, OrderStatus, OrderType} from "./lib/Objects.sol";
+import {OrderInfo, OrderStatus, OrderType, PriceInfo} from "./lib/Objects.sol";
 import {Quoter} from "../price-engine/Quoter.sol";
 import "./lib/Errors.sol";
 import "forge-std/console.sol";
@@ -20,6 +20,9 @@ contract OrderManager {
     mapping(uint256 => OrderInfo) internal ordersMapping;
     EnumerableSet.UintSet internal orders; // we store here orderIds'
 
+    // pool address to price info struct (last price, updateAt)
+    mapping(address => PriceInfo) internal priceMappings;
+
     constructor(address _quoter) {
         quoter = Quoter(_quoter);
     }
@@ -31,6 +34,7 @@ contract OrderManager {
         uint256 _price,
         OrderType _orderType
     ) external returns (uint256) {
+        console.log(msg.sender);
         (bool success, ) = _tokenIn.call(
             abi.encodeWithSignature(
                 "transferFrom(address,address,uint256)",
@@ -69,11 +73,12 @@ contract OrderManager {
     }
 
     function getEligbleOrders() external view returns (uint256[] memory) {
-        uint256[] memory eligbleOrdersIds = new uint256[](orders.length());
+        uint256 arrLength = orders.length();
+        uint256[] memory eligbleOrdersIds = new uint256[](arrLength);
 
         uint256 _index = 0;
 
-        for (uint256 i = 0; i < orders.length(); i++) {
+        for (uint256 i = 0; i < arrLength; i++) {
             OrderInfo memory _orderInfo = ordersMapping[orders.at(i)];
             uint256 _price = quoter.getQuote(
                 _orderInfo.assetIn,
