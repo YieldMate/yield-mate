@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
-import {OrderInfo} from "./lib/Objects.sol";
 
 interface IOrderManager {
     function addOrder(
@@ -9,8 +8,7 @@ interface IOrderManager {
         uint256 _price
     ) external returns (uint256);
 
-    function executeOrders() external;
+    function executeOrders(uint256[] memory) external;
 
-    function getEligbleOrders() external view;
-    // returns (OrderInfo[] memory);
+    function getEligibleOrders() external view returns (uint256[] memory);
 }
