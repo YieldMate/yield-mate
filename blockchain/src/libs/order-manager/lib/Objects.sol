@@ -2,9 +2,9 @@
 pragma solidity 0.8.19;
 struct OrderInfo {
     address assetIn;
-    uint256 targetPrice;
     address assetOut;
     uint256 amountIn;
+    uint256 targetPrice;
     OrderStatus status;
     OrderType orderType;
 }

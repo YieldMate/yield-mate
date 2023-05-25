@@ -4,13 +4,15 @@ import "forge-std/Test.sol";
 import "forge-std/StdUtils.sol";
 import "forge-std/console.sol";
 
+import "../../src/libs/order-manager/swaper/Swaper.sol";
 import "../../src/libs/order-manager/price-engine/Quoter.sol";
 
 contract OrderManagerTest is Test {
+    Swaper public swaper;
     Quoter public quoter;
     uint256 polygonFork;
 
-    address alice = address(1);
+    address alice = address(123);
 
     function setUp() public {
         polygonFork = vm.createFork(
@@ -22,36 +24,43 @@ contract OrderManagerTest is Test {
             0x1F98431c8aD98523631AE4a59f267346ea31F984,
             0xE592427A0AEce92De3Edee1F18E0157C05861564
         );
+
+        swaper = new Swaper(
+            0xE592427A0AEce92De3Edee1F18E0157C05861564,
+            address(quoter)
+        );
     }
 
-    function testquoteExactOutput() public {
-        vm.startPrank(alice);
-
+    function testSwapExactInputSingle() public {
         address WMATIC = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
         address USDC = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
+        uint256 _amountIn = 8000000;
 
-        uint256 value;
+        deal(USDC, alice, _amountIn);
 
-        value = quoter.getQuote(
-            WMATIC, // dajemy matic
-            USDC, // za usdc
-            1 * 10 ** 18 // 1 matica
+        vm.startPrank(alice);
+
+        address(USDC).call(
+            abi.encodeWithSignature(
+                "transfer(address,uint256)",
+                address(swaper),
+                _amountIn
+            )
         );
 
-        value = quoter.getQuote(
+        swaper.swapExactInputSingle(
             USDC, // dajemy matic
             WMATIC, // za usdc
-            1 * 10 ** 6 // 1 matica
+            _amountIn,
+            alice
         );
 
-        // value = engine.getQuote(
-        //     0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, // dajemy weth
-        //     0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6, // za btc
-        //     3000,
-        //     1 * 10 ** 18 // 1 matica
-        // );
+        address[] memory _users = new address[](1);
+        _users[0] = alice;
 
-        // dostaniemy
-        console.log(value);
+        console.log(
+            "alice WMATIC balance",
+            StdUtils.getTokenBalances(WMATIC, _users)[0]
+        );
     }
 }

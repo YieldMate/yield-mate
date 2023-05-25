@@ -4,13 +4,15 @@ import "forge-std/Test.sol";
 import "forge-std/StdUtils.sol";
 
 import "../../src/libs/order-manager/OrderManager.sol";
-import "../../src/libs/price-engine/Quoter.sol";
+import "../../src/libs/order-manager/price-engine/Quoter.sol";
+import {Swaper} from "../../src/libs/order-manager/swaper/Swaper.sol";
 
 import {OrderInfo, OrderStatus, OrderType} from "../../src/libs/order-manager/lib/Objects.sol";
 
 contract OrderManagerTest is Test {
     OrderManager public manager;
     Quoter public quoter;
+    Swaper public swaper;
 
     uint256 polygonFork;
 
@@ -33,7 +35,13 @@ contract OrderManagerTest is Test {
             0x1F98431c8aD98523631AE4a59f267346ea31F984,
             0xE592427A0AEce92De3Edee1F18E0157C05861564
         );
-        manager = new OrderManager(address(quoter));
+
+        swaper = new Swaper(
+            0xE592427A0AEce92De3Edee1F18E0157C05861564,
+            address(quoter)
+        );
+
+        manager = new OrderManager(address(quoter), address(swaper));
     }
 
     function _addOrder(
@@ -41,12 +49,14 @@ contract OrderManagerTest is Test {
         address _tokenIn,
         address _tokenOut,
         uint256 _amountIn,
-        uint256 _price,
+        uint256 _targetPrice,
         OrderType _type
     ) internal returns (uint256) {
         deal(_tokenIn, _sender, _amountIn);
 
         vm.startPrank(_sender);
+
+        // solhint-disable-next-line avoid-low-level-calls
         address(_tokenIn).call(
             abi.encodeWithSignature(
                 "approve(address,uint256)",
@@ -55,15 +65,11 @@ contract OrderManagerTest is Test {
             )
         );
 
-        (bool result, bytes memory data) = address(_tokenIn).call(
-            abi.encodeWithSignature("balanceOf(address)", _sender)
-        );
-
         uint256 _orderId = manager.addOrder(
             _tokenIn,
             _tokenOut,
             _amountIn,
-            _price,
+            _targetPrice,
             _type
         );
         vm.stopPrank();
@@ -103,15 +109,22 @@ contract OrderManagerTest is Test {
             WMATIC,
             LINK,
             4 * 10 ** 18,
-            10 * 10 ** 18,
+            13 * 10 ** 16,
             OrderType.BUY
         );
 
         assertEq(orderId, 3);
     }
 
-    function testGetEligbibleOrders() public returns (uint256[] memory) {
+    function testGetEligbibleOrders() public {
         testAddOrder();
-        return manager.getEligbleOrders();
+        uint256[] memory _returnArray = manager.getEligbleOrders();
+        assertEq(_returnArray.length, 4);
+    }
+
+    function testExecuteOrders() public {
+        testAddOrder();
+        uint256[] memory _returnArray = manager.getEligbleOrders();
+        manager.executeOrders(_returnArray);
     }
 }
