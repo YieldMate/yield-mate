@@ -99,7 +99,7 @@ contract OrderManagerTest is Test {
             address(124),
             WBTC,
             USDT,
-            15 * 10 ** 17,
+            15 * 10 ** 7,
             24000 * 10 ** 6,
             OrderType.SELL
         );
@@ -113,7 +113,7 @@ contract OrderManagerTest is Test {
             OrderType.BUY
         );
 
-        assertEq(orderId, 3);
+        assertEq(orderId, 4);
     }
 
     function testGetEligbibleOrders() public {

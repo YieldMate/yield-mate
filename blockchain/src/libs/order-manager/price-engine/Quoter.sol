@@ -41,4 +41,21 @@ contract Quoter {
             tokenOut
         );
     }
+
+    function reversePriceToSqrt(
+        uint256 price
+    ) external pure returns (uint160 sqrtPriceX96) {
+        uint256 sqrtPriceX96Squared = (price << (96 * 2)) / 1e18;
+        sqrtPriceX96 = uint160(sqrt(sqrtPriceX96Squared));
+        return sqrtPriceX96;
+    }
+
+    function sqrt(uint x) public pure returns (uint y) {
+        uint z = (x + 1) / 2;
+        y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+    }
 }

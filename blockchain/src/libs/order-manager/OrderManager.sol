@@ -83,6 +83,9 @@ contract OrderManager {
             if (_orderInfo.status.executed) {} else {
                 _executeOrder(_orderInfo, _offersIds[i]);
             }
+            console.log(
+                "+++++++++++++++++++++++++++++++++AAAA++++++++++++++++++++++++++++++"
+            );
         }
     }
 
@@ -100,13 +103,26 @@ contract OrderManager {
         );
 
         if (!success) revert TransferFailed();
-        console.log("oderId: %s", _orderId);
+
+        (uint256 _price, uint256 _estAmountOut) = fetchOrderDetails(_orderInfo);
+
+        console.log(
+            "OrderManager:106 orderId: %s   price: %s",
+            _orderId,
+            _price
+        );
+
+        uint160 _sqrtPriceX96 = quoter.reversePriceToSqrt(
+            _orderInfo.targetPrice
+        );
 
         // execute order
         uint256 _amountOut = swaper.swapExactInputSingle(
             _orderInfo.assetIn,
             _orderInfo.assetOut,
             _orderInfo.amountIn,
+            _estAmountOut,
+            _sqrtPriceX96,
             address(this)
         );
 
@@ -127,6 +143,8 @@ contract OrderManager {
     {
         uint256 arrLength = orders.length();
 
+        console.log("arrLength: %s", arrLength);
+
         eligbleOrdersIds = new uint256[](arrLength);
 
         uint256 _index = 0;
@@ -134,30 +152,12 @@ contract OrderManager {
         for (uint256 i = 0; i < arrLength; i++) {
             OrderInfo memory _orderInfo = ordersMapping[orders.at(i)];
 
-            uint256 _price;
-
             // if we want to buy tokenB for tokenA we want to know how much 1 tokenB is worth in A (ex. 1000 USDT for WMATIC)
-            if (_orderInfo.orderType == OrderType.BUY) {
-                _price = quoter.getQuote(
-                    _orderInfo.assetOut,
-                    _orderInfo.assetIn,
-                    1 * 10 ** IERC20(_orderInfo.assetOut).decimals()
-                );
-                // we sell - simple
-            } else {
-                _price = quoter.getQuote(
-                    _orderInfo.assetIn,
-                    _orderInfo.assetOut,
-                    1 * 10 ** IERC20(_orderInfo.assetIn).decimals()
-                );
-            }
+            console.log("OrderManager:146 orderId: %s", orders.at(i));
 
-            console.log(
-                "orderId: %s  price: %s  targetPrice: %s",
-                orders.at(i),
-                _price,
-                _orderInfo.targetPrice
-            );
+            (uint256 _price, ) = fetchOrderDetails(_orderInfo);
+
+            console.log("====================================");
 
             if (
                 (_orderInfo.orderType == OrderType.SELL &&
@@ -165,7 +165,6 @@ contract OrderManager {
                 (_orderInfo.orderType == OrderType.BUY &&
                     _price <= _orderInfo.targetPrice)
             ) {
-                console.log(orders.at(i));
                 eligbleOrdersIds[_index] = orders.at(i);
                 _index++;
             }
@@ -174,8 +173,44 @@ contract OrderManager {
         uint256[] memory _eligible = new uint256[](_index);
         for (uint256 i = 0; i < _index; i++) {
             _eligible[i] = eligbleOrdersIds[i];
+            console.log("OrderManager:165 eligible: %s", _eligible[i]);
         }
-
         return _eligible;
+    }
+
+    function fetchOrderDetails(
+        OrderInfo memory _orderInfo
+    ) internal view returns (uint256 _price, uint256 _estAmountOut) {
+        console.log("OrderManager:179 fetchingOrders");
+
+        if (_orderInfo.orderType == OrderType.BUY) {
+            _price = quoter.getQuote(
+                _orderInfo.assetOut,
+                _orderInfo.assetIn,
+                1 * 10 ** IERC20(_orderInfo.assetOut).decimals()
+            );
+            console.log("OrderManager:182 price:", _price);
+            _estAmountOut =
+                (_orderInfo.amountIn *
+                    10 ** IERC20(_orderInfo.assetOut).decimals()) /
+                _price;
+            // we sell - simple
+        } else {
+            _price = quoter.getQuote(
+                _orderInfo.assetIn,
+                _orderInfo.assetOut,
+                1 * 10 ** IERC20(_orderInfo.assetIn).decimals()
+            );
+
+            _estAmountOut =
+                (_orderInfo.amountIn * _price) /
+                10 ** IERC20(_orderInfo.assetIn).decimals();
+        }
+        console.log("OrderManager:197 estAmountOut: ", _estAmountOut);
+        console.log(
+            "OrderManager:199 price: %s  targetPrice: %s",
+            _price,
+            _orderInfo.targetPrice
+        );
     }
 }

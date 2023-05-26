@@ -23,11 +23,15 @@ contract Swaper {
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
+        uint256 estAmountOut,
+        uint160 sqrtPriceLimitX96,
         address recipient
     ) public returns (uint256 amountOut) {
-        uint256 _amountOut = quoter.getQuote(tokenIn, tokenOut, amountIn);
-        console.log("amountOutQuote: ", _amountOut);
         TransferHelper.safeApprove(tokenIn, address(swapRouter), amountIn);
+        console.log("Swaper:30 executingSwap");
+        console.log("tokenIn: ", tokenIn);
+        console.log("tokenOut: ", tokenOut);
+        console.log("amountIn: ", amountIn);
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
                 tokenIn: tokenIn,
@@ -36,10 +40,13 @@ contract Swaper {
                 recipient: recipient,
                 deadline: block.timestamp + 10,
                 amountIn: amountIn,
-                amountOutMinimum: _amountOut - _amountOut / 10, // 2% slippage // TODO: slippage should be configurable by the user
-                sqrtPriceLimitX96: 0 // TODO: maybe this should be loaded from pool.slot0()
+                amountOutMinimum: 0,
+                // amountOutMinimum: estAmountOut - estAmountOut / 100, // 1% slippage // TODO: slippage should be configurable by the user
+                sqrtPriceLimitX96: sqrtPriceLimitX96 // TODO: maybe this should be loaded from pool.slot0()
             });
+        // TODO: if run with amountOutMinimum the slippage is too high and we receive to little tokens
 
+        console.log("estAmountOut: ", estAmountOut);
         console.log("amountOutMinimum: ", params.amountOutMinimum);
         amountOut = swapRouter.exactInputSingle(params);
         console.log("amountOut: ", amountOut);

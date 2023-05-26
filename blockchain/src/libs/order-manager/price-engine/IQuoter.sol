@@ -12,4 +12,8 @@ interface IQuoter {
         address tokenOut,
         uint256 amountIn
     ) external view returns (uint256 amountOut);
+
+    function reversePriceToSqrt(
+        uint256 price
+    ) external pure returns (uint160 sqrtPriceX96);
 }

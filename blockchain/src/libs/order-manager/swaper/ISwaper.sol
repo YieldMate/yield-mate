@@ -6,6 +6,8 @@ interface ISwaper {
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
+        uint256 estAmountOut,
+        uint160 sqrtPriceLimitX96,
         address recipient
     ) external returns (uint256 amountOut);
 }
