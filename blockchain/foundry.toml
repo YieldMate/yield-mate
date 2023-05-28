@@ -10,3 +10,7 @@ remappings = [
     "@uniswap/v3-periphery/=node_modules/@uniswap/v3-periphery/",
     "@chainlink/=node_modules/@chainlink/contracts"
 ] # See more config options https://github.com/foundry-rs/foundry/tree/master/config
+
+[rpc_endpoints]
+sepolia = "${GOERLI_RPC_URL}"
+polygon = ""
