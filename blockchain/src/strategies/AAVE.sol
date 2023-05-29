@@ -151,11 +151,18 @@ abstract contract AAVE {
                 deposits[_aToken][i].amount = amount_ * current_ / last_;
             }
         }
+        
+        // update supply
+        totalSupplies[_aToken] = current_;
     }
 
     function _addDeposit(address _aToken, uint256 _amount) internal {
         // add member to deposit mapping
         deposits[_aToken].push(Deposit(msg.sender, _amount));
+        
+        // update supply
+        totalSupplies[_aToken] += _amount;
+        
         // increase deposits length
         depositLength[_aToken] += 1;
     }
