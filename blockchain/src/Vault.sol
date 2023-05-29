@@ -8,7 +8,6 @@ import { Tokens } from "./lib/Tokens.sol";
 
 /// @notice vault integrated with yield generating strategies
 contract Vault is IVault, AAVE {
-
     // -----------------------------------------------------------------------
     //                              State variables
     // -----------------------------------------------------------------------
@@ -51,28 +50,36 @@ contract Vault is IVault, AAVE {
     // -----------------------------------------------------------------------
 
     /// @dev deposits funds via attached strategy for given asset
-    function deposit(address _token, uint256 _amount) external payable {
+    function deposit(
+        address _token,
+        uint256 _amount,
+        uint256 _orderId
+    ) external payable {
         // deposit funds from user to underlying protocol
         Strategy strategy_ = resolvers[_token];
         if (strategy_ == Strategy.AAVE) {
             if (_token == Tokens.MATIC) {
-                _depositNative(_token, _amount);
+                _depositNative(_token, _amount, _orderId);
             } else {
-                _deposit(_token, _amount);
+                _deposit(_token, _amount, _orderId);
             }
         } else if (strategy_ == Strategy.Unsupported) {
             revert UnsupportedStrategy();
         }
     }
 
-    function withdraw(address _token, uint256 _amount) external {
+    function withdraw(
+        address _token,
+        uint256 _amount,
+        uint256 _orderId
+    ) external {
         // update storage
         // TODO
 
         // send funds from underlying protocol back to the user
         Strategy strategy_ = resolvers[_token];
         if (strategy_ == Strategy.AAVE) {
-            _withdraw(_token, _amount);
+            _withdraw(_token, _amount, _orderId);
         } else if (strategy_ == Strategy.Unsupported) {
             revert UnsupportedStrategy();
         }

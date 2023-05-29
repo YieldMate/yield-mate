@@ -13,7 +13,6 @@ import { Tokens } from "../lib/Tokens.sol";
 
 // @notice vault integrated with yield generating strategies
 abstract contract AAVE {
-
     // -----------------------------------------------------------------------
     //                              Structs
     // -----------------------------------------------------------------------
@@ -77,9 +76,11 @@ abstract contract AAVE {
     /// @dev deposits funds to AAVE contract
     /// @param _token address of ERC20
     /// @param _amount quantity of deposited ERC20
+    /// @param _orderId ID of order
     function _deposit(
         address _token,
-        uint256 _amount
+        uint256 _amount,
+        uint256 _orderId
     ) internal {
         // aToken
         address aToken_ = aTokens[_token];
@@ -99,15 +100,17 @@ abstract contract AAVE {
         pool.supply(_token, _amount, address(this), 0);
 
         // add new deposit
-        _addDeposit(aToken_, _amount);
+        _addDeposit(aToken_, _amount, _orderId);
     }
-    
+
     /// @dev deposits native token (MATIC) to AAVE contract
     /// @param _token address of ERC20
     /// @param _amount number of ERC20 to deposit
+    /// @param _orderId ID of order
     function _depositNative(
         address _token,
-        uint256 _amount
+        uint256 _amount,
+        uint256 _orderId
     ) internal {
         // aToken
         address aToken_ = aTokens[_token];
@@ -124,16 +127,34 @@ abstract contract AAVE {
         gateway.depositETH{value: _amount}(address(pool), address(this), 0);
 
         // add new deposit
-        _addDeposit(aToken_, _amount);
+        _addDeposit(aToken_, _amount, _orderId);
     }
 
     /// @dev withdraws funds from AAVE contract
     /// @param _token address of ERC20
-    /// @param _amount portion of pool to withdrawn
+    /// @param _orderId ID of order
     /// @return amount_ actual number of tokens with yield
-    function _withdraw(address _token, uint256 _amount) internal
-    returns (uint256 amount_) {
-        amount_ = 0;
+    function _withdraw(address _token, uint256 _orderId) internal {
+        // aToken
+        address aToken_ = aTokens[_token];
+
+        // recompute deposits with yield
+        _recomputeDeposits(aToken_);
+
+        // get deposit index
+        uint256 depositIndex_ = depositsIndexes[_orderId];
+
+        // get amount to withdraw
+        uint256 amount_ = deposits[_aToken][depositIndex_].amount;
+
+        // withdraw from pool
+        pool.withdraw(_token, amount_, address(this));
+
+        // remov deposit
+        _removeDeposit(_aToken, depositIndex_);
+
+        // remove deposit index
+        delete depositsIndexes[_orderId];
     }
 
     function _recomputeDeposits(address _aToken) internal {
@@ -151,20 +172,40 @@ abstract contract AAVE {
                 deposits[_aToken][i].amount = amount_ * current_ / last_;
             }
         }
-        
+
         // update supply
         totalSupplies[_aToken] = current_;
     }
 
-    function _addDeposit(address _aToken, uint256 _amount) internal {
+    function _addDeposit(
+        address _aToken,
+        uint256 _amount,
+        uint256 _orderId
+    ) internal {
         // add member to deposit mapping
         deposits[_aToken].push(Deposit(msg.sender, _amount));
-        
+
         // update supply
         totalSupplies[_aToken] += _amount;
-        
+
+        // map order id to index of deposit
+        depositsIndexes[_orderId] = depositLength[_aToken];
+
         // increase deposits length
         depositLength[_aToken] += 1;
     }
 
+    function _removeDeposit(address _aToken, uint256 _depositIndex) internal {
+        // get deposits length
+        uint256 length_ = depositLength[_aToken];
+
+        // replace deposit to be deleted with last deposit
+        deposits[_aToken][_depositIndex] = deposits[_aToken][length_ - 1];
+
+        // delete repeated deposit (last)
+        deposits[_aToken].pop();
+
+        // decrease deposits length
+        depositLength[_aToken] -= 1;
+    }
 }
