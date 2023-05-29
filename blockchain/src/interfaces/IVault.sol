@@ -29,8 +29,8 @@ interface IVault {
     // -----------------------------------------------------------------------
 
     /// @dev deposits tokens using attached strategy
-    function deposit(address _token, uint256 _amount) external;
+    function deposit(address _token, uint256 _amount) external payable;
     /// @dev withdraws tokens using attached strategy
-    function withdraw(uint256 _shares) external;
+    function withdraw(address _token, uint256 _amount) external;
 
 }

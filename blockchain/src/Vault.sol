@@ -1,28 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-// local imports
+// Local imports
 import { IVault } from "./interfaces/IVault.sol";
 import { AAVE } from "./strategies/AAVE.sol";
+import { Tokens } from "./lib/Tokens.sol";
 
 /// @notice vault integrated with yield generating strategies
-contract Vault is IVault {
-
-    // -----------------------------------------------------------------------
-    //                              Constants
-    // -----------------------------------------------------------------------
-
-    address constant internal MATIC = 0x0000000000000000000000000000000000000000;
-    address constant internal wMATIC = 0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270;
-    address constant internal wETH = 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619;
-    address constant internal wBTC = 0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6;
-    address constant internal USDC = 0x2791bca1f2de4661ed88a30c99a7a9449aa84174;
-    address constant internal USDT = 0xc2132d05d31c914a87c6611c10748aeb04b58e8f;
-    address constant internal DAI = 0x8f3cf7ad23cd3cadbd9735aff958023239c6a063;
-    address constant internal BAL = 0x9a71012b13ca4d3d0cdc72a177df3ef03b0e76a3;
-    address constant internal CRV = 0x172370d5cd63279efa6d502dab29171933a610af;
-    address constant internal SUSHI = 0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a;
-    address constant internal LINK = 0x53e0bca35ec356bd5dddfebbd1fc0fd03fabad39;
+contract Vault is IVault, AAVE {
 
     // -----------------------------------------------------------------------
     //                              State variables
@@ -30,37 +15,35 @@ contract Vault is IVault {
 
     /// @dev binds strategy to token address
     mapping (address => Strategy) public resolvers;
-    mapping (address => address[]) public aaveShareHolders;
-    mapping (address => mapping(address => uint256)) public aaveShares;
 
 
     // -----------------------------------------------------------------------
     //                              Constructor
     // -----------------------------------------------------------------------
 
-    constructor() {
+    constructor() AAVE() {
         /// @dev MATIC                                          APY: 1.33%
-        resolvers[MATIC] = Strategy.AAVE;
+        resolvers[Tokens.MATIC] = Strategy.AAVE;
         /// @dev wMATIC                                         APY: 1.33%
-        resolvers[wMATIC] = Strategy.AAVE;
+        resolvers[Tokens.wMATIC] = Strategy.AAVE;
         /// @dev wETH                                           APY: 0.26%
-        resolvers[wETH] = Strategy.AAVE;
+        resolvers[Tokens.wETH] = Strategy.AAVE;
         /// @dev wBTC                                           APY: 0.10%
-        resolvers[wBTC] = Strategy.AAVE;
+        resolvers[Tokens.wBTC] = Strategy.AAVE;
         /// @dev USDC                                           APY: 2.38%
-        resolvers[USDC] = Strategy.AAVE;
+        resolvers[Tokens.USDC] = Strategy.AAVE;
         /// @dev USDT                                           APY: 2.19%
-        resolvers[USDT] = Strategy.AAVE;
+        resolvers[Tokens.USDT] = Strategy.AAVE;
         /// @dev DAI                                            APY: 2.47%
-        resolvers[DAI] = Strategy.AAVE;
+        resolvers[Tokens.DAI] = Strategy.AAVE;
         /// @dev BAL                                            APY: 8.55%
-        resolvers[BAL] = Strategy.AAVE;
+        resolvers[Tokens.BAL] = Strategy.AAVE;
         /// @dev CRV                                            APY: 3.37%
-        resolvers[CRV] = Strategy.AAVE;
+        resolvers[Tokens.CRV] = Strategy.AAVE;
         /// @dev SUSHI                                          APY: 2.97%
-        resolvers[SUSHI] = Strategy.AAVE;
+        resolvers[Tokens.SUSHI] = Strategy.AAVE;
         /// @dev LINK                                           APY: 1.14%
-        resolvers[LINK] = Strategy.AAVE;
+        resolvers[Tokens.LINK] = Strategy.AAVE;
     }
 
     // -----------------------------------------------------------------------
@@ -68,43 +51,30 @@ contract Vault is IVault {
     // -----------------------------------------------------------------------
 
     /// @dev deposits funds via attached strategy for given asset
-    function deposit(address _token, uint256 _amount, address _aToken) external payable {
-
-        // shares
-        uint256 shares_;
-        uint256 aTokensBeforeSupply_;
-        uint256 aTokensAfterSupply_;
-
+    function deposit(address _token, uint256 _amount) external payable {
         // deposit funds from user to underlying protocol
         Strategy strategy_ = resolvers[_token];
         if (strategy_ == Strategy.AAVE) {
-            if (_token == MATIC) {
-                shares_ = AAVE.depositNative(_token, _amount);
+            if (_token == Tokens.MATIC) {
+                _depositNative(_token, _amount);
             } else {
-                (shares_, aTokensBeforeSupply_, aTokensAfterSupply_) = AAVE.deposit(_token, _amount, _aToken);
+                _deposit(_token, _amount);
             }
-            
-            for shareHolder in aaveShareHolders[_token] {
-                aaveShares[_token][shareHolder] = AAVE.updateShares(aaveShares[_token][shareHolder], aTokensBeforeSupply_, aTokensAfterSupply_);
-            }
-            aaveShares[_token][msg.sender] = shares_
-
         } else if (strategy_ == Strategy.Unsupported) {
             revert UnsupportedStrategy();
         }
-
-        // update storage
-        // TODO
-
     }
 
-    function withdraw(uint256 _shares) external {
-
+    function withdraw(address _token, uint256 _amount) external {
         // update storage
         // TODO
 
         // send funds from underlying protocol back to the user
-        // TODO
-
+        Strategy strategy_ = resolvers[_token];
+        if (strategy_ == Strategy.AAVE) {
+            _withdraw(_token, _amount);
+        } else if (strategy_ == Strategy.Unsupported) {
+            revert UnsupportedStrategy();
+        }
     }
 }
