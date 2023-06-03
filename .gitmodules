@@ -1,0 +1,6 @@
+[submodule "blockchain/lib/v3-periphery"]
+	path = blockchain/lib/v3-periphery
+	url = https://github.com/Uniswap/v3-periphery
+[submodule "blockchain/lib/chainlink"]
+	path = blockchain/lib/chainlink
+	url = https://github.com/smartcontractkit/chainlink
