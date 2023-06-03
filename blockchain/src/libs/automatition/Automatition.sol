@@ -19,12 +19,16 @@ contract Automatition is AutomationCompatible {
         orderManager = IOrderManager(_orderManager);
     }
 
-    function _checkEligible() internal view returns (uint256[] memory) {
+    function _checkEligible()
+        internal
+        view
+        returns (bool upkeepNeeded, uint256[] memory)
+    {
         uint256[] memory _eligbleOrders = orderManager.getEligibleOrders();
         if (_eligbleOrders.length == 0) {
-            revert();
+            return (false, _eligbleOrders);
         }
-        return _eligbleOrders;
+        return (true, _eligbleOrders);
     }
 
     function checkUpkeep(
@@ -35,16 +39,11 @@ contract Automatition is AutomationCompatible {
         override
         returns (bool upkeepNeeded, bytes memory /* performData */)
     {
-        uint256[] memory _eligbleOrders = orderManager.getEligibleOrders();
-        if (_eligbleOrders.length == 0) {
-            upkeepNeeded = false;
-            return (upkeepNeeded, "");
-        }
-        upkeepNeeded = true;
+        (upkeepNeeded, ) = _checkEligible();
     }
 
     function performUpkeep(bytes calldata) external override {
-        uint256[] memory _eligbleOrders = _checkEligible();
+        (, uint256[] memory _eligbleOrders) = _checkEligible();
         orderManager.executeOrders(_eligbleOrders);
         lastTimeStamp = block.timestamp;
     }

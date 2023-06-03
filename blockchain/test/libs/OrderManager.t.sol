@@ -3,11 +3,13 @@ pragma solidity 0.8.19;
 import "forge-std/Test.sol";
 import "forge-std/StdUtils.sol";
 
-import "../../src/libs/order-manager/OrderManager.sol";
-import "../../src/libs/order-manager/price-engine/Quoter.sol";
+import {OrderManager, Modules} from "../../src/libs/order-manager/OrderManager.sol";
+import {Quoter} from "../../src/libs/order-manager/price-engine/Quoter.sol";
 import {Swaper} from "../../src/libs/order-manager/swaper/Swaper.sol";
 
 import {OrderInfo, OrderStatus, OrderType} from "../../src/libs/order-manager/lib/Objects.sol";
+
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract OrderManagerTest is Test {
     OrderManager public manager;
@@ -31,6 +33,8 @@ contract OrderManagerTest is Test {
         );
         vm.selectFork(polygonFork);
 
+        manager = new OrderManager();
+
         quoter = new Quoter(
             0x1F98431c8aD98523631AE4a59f267346ea31F984,
             0xE592427A0AEce92De3Edee1F18E0157C05861564
@@ -38,10 +42,13 @@ contract OrderManagerTest is Test {
 
         swaper = new Swaper(
             0xE592427A0AEce92De3Edee1F18E0157C05861564,
-            address(quoter)
+            address(quoter),
+            address(manager)
         );
 
-        manager = new OrderManager(address(quoter), address(swaper));
+        manager.setUpModule(Modules.SWAPER, address(swaper));
+        manager.setUpModule(Modules.QUOTER, address(quoter));
+        manager.setUpModule(Modules.VAULT, address(0));
     }
 
     function _addOrder(
@@ -99,7 +106,7 @@ contract OrderManagerTest is Test {
             address(124),
             WBTC,
             USDT,
-            15 * 10 ** 7,
+            15 * 10 ** 6,
             24000 * 10 ** 6,
             OrderType.SELL
         );
@@ -126,5 +133,11 @@ contract OrderManagerTest is Test {
         testAddOrder();
         uint256[] memory _returnArray = manager.getEligbleOrders();
         manager.executeOrders(_returnArray);
+
+        (, , , , OrderStatus memory _status, ) = manager.ordersMapping(1);
+        assertEq(_status.executed, true);
+
+        (, , , , _status, ) = manager.ordersMapping(3);
+        assertEq(_status.executed, true);
     }
 }

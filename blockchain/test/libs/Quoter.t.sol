@@ -32,24 +32,23 @@ contract OrderManagerTest is Test {
 
         uint256 value;
 
-        value = quoter.getQuote(
-            WMATIC, // dajemy matic
-            USDC, // za usdc
-            1 * 10 ** 18 // 1 matica
-        );
-
-        value = quoter.getQuote(
-            USDC, // dajemy matic
-            WMATIC, // za usdc
-            1 * 10 ** 6 // 1 matica
-        );
-
-        // value = engine.getQuote(
-        //     0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, // dajemy weth
-        //     0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6, // za btc
-        //     3000,
+        // value = quoter.getQuote(
+        //     WMATIC, // dajemy matic
+        //     USDC, // za usdc
         //     1 * 10 ** 18 // 1 matica
         // );
+
+        // value = quoter.getQuote(
+        //     USDC, // dajemy matic
+        //     WMATIC, // za usdc
+        //     1 * 10 ** 6 // 1 matica
+        // );
+
+        value = quoter.getQuote(
+            0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, // dajemy weth
+            0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6, // za btc
+            1 * 10 ** 18 // 1 matica
+        );
 
         // dostaniemy
         console.log(value);

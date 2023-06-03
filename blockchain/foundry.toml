@@ -5,11 +5,11 @@ libs = ['lib']
 solc = "0.8.19"
 
 remappings = [
-    "@openzeppelin/=node-modules/@openzeppelin/contracts",
+    "@chainlink/=node_modules/@chainlink/contracts/",
+    "@openzeppelin/=node_modules/@openzeppelin/",
     "@uniswap/v3-core/=node_modules/@uniswap/v3-core/",
-    "@uniswap/v3-periphery/=node_modules/@uniswap/v3-periphery/",
-    "@chainlink/=node_modules/@chainlink/contracts"
-] # See more config options https://github.com/foundry-rs/foundry/tree/master/config
+    "@uniswap/v3-periphery/=node_modules/@uniswap/v3-periphery/"
+]
 
 [rpc_endpoints]
 sepolia = "${GOERLI_RPC_URL}"

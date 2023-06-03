@@ -1,6 +1,0 @@
-@chainlink/=node_modules/@chainlink/contracts/
-@openzeppelin/=node_modules/@openzeppelin/
-@uniswap/v3-core/=node_modules/@uniswap/v3-core/
-@uniswap/v3-periphery/=node_modules/@uniswap/v3-periphery/
-ds-test/=lib/forge-std/lib/ds-test/src/
-forge-std/=lib/forge-std/src/
