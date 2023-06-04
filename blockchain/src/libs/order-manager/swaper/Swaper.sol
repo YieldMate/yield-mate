@@ -4,18 +4,14 @@ pragma solidity 0.8.19;
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
-import {IQuoter} from "../price-engine/IQuoter.sol";
-
 contract Swaper {
     ISwapRouter public immutable swapRouter;
-    IQuoter public quoter;
     address private orderManager;
 
     uint24 public constant POOL_FEE = 3000;
 
-    constructor(address _swapRouter, address _quoter, address _orderManager) {
+    constructor(address _swapRouter, address _orderManager) {
         swapRouter = ISwapRouter(_swapRouter);
-        quoter = IQuoter(_quoter);
         orderManager = _orderManager;
     }
 

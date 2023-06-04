@@ -25,11 +25,7 @@ contract OrderManagerTest is Test {
             0xE592427A0AEce92De3Edee1F18E0157C05861564
         );
 
-        swaper = new Swaper(
-            0xE592427A0AEce92De3Edee1F18E0157C05861564,
-            address(quoter),
-            msg.sender
-        );
+        swaper = new Swaper(0xE592427A0AEce92De3Edee1F18E0157C05861564, alice);
     }
 
     function testSwapExactInputSingle() public {

@@ -20,7 +20,7 @@ contract OrderManager {
     IQuoter private quoter;
     Swaper private swaper;
     IVault private vault;
-
+    address private keeper;
     address private admin;
 
     Counters.Counter orderId;
@@ -51,10 +51,17 @@ contract OrderManager {
             swaper = Swaper(_moduleAddress);
         } else if (_moduleType == Modules.VAULT) {
             vault = IVault(_moduleAddress);
+        } else if (_moduleType == Modules.KEEPER) {
+            keeper = _moduleAddress;
+        } else {
+            revert("invalidModule");
         }
     }
 
-    function depositToVault(OrderInfo memory _order) internal {
+    function depositToVault(
+        OrderInfo memory _order,
+        uint256 _orderId
+    ) internal {
         address(_order.assetIn).call(
             abi.encodeWithSignature(
                 "deposit(address,uint256)",
@@ -62,7 +69,11 @@ contract OrderManager {
                 _order.amountIn
             )
         );
-        // vault.deposit(_order.assetIn, _order.amountIn);
+        vault.deposit(_order.assetIn, _order.amountIn, _orderId);
+    }
+
+    function withdrawFromVault(uint256 _orderId) internal {
+        vault.withdraw(_orderId);
     }
 
     function addOrder(
@@ -108,13 +119,15 @@ contract OrderManager {
         // add orderId to orders array
         orders.add(_orderId);
 
-        depositToVault(ordersMapping[_orderId]);
+        depositToVault(ordersMapping[_orderId], _orderId);
 
         return _orderId;
     }
 
     function executeOrders(uint256[] memory _offersIds) external {
-        // TODO: add onlyOracle require
+        if (msg.sender != keeper) revert("!keeper");
+        if (_offersIds.length == 0) revert("noOrdersToExecute");
+
         for (uint256 i = 0; i < _offersIds.length; i++) {
             OrderInfo memory _orderInfo = ordersMapping[_offersIds[i]];
             if (_orderInfo.status.executed) {} else {

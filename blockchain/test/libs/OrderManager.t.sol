@@ -6,15 +6,20 @@ import "forge-std/StdUtils.sol";
 import {OrderManager, Modules} from "../../src/libs/order-manager/OrderManager.sol";
 import {Quoter} from "../../src/libs/order-manager/price-engine/Quoter.sol";
 import {Swaper} from "../../src/libs/order-manager/swaper/Swaper.sol";
+import {Vault} from "../../src/mocks/Vault.sol";
 
 import {OrderInfo, OrderStatus, OrderType} from "../../src/libs/order-manager/lib/Objects.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "forge-std/console.sol";
+
 contract OrderManagerTest is Test {
     OrderManager public manager;
     Quoter public quoter;
     Swaper public swaper;
+    Vault public vault;
+    address public keeper = address(123456);
 
     uint256 polygonFork;
 
@@ -42,13 +47,15 @@ contract OrderManagerTest is Test {
 
         swaper = new Swaper(
             0xE592427A0AEce92De3Edee1F18E0157C05861564,
-            address(quoter),
             address(manager)
         );
 
+        vault = new Vault();
+
         manager.setUpModule(Modules.SWAPER, address(swaper));
         manager.setUpModule(Modules.QUOTER, address(quoter));
-        manager.setUpModule(Modules.VAULT, address(0));
+        manager.setUpModule(Modules.VAULT, address(vault));
+        manager.setUpModule(Modules.KEEPER, keeper);
     }
 
     function _addOrder(
@@ -89,7 +96,7 @@ contract OrderManagerTest is Test {
             USDC,
             WMATIC,
             10 * 10 ** 6,
-            900000,
+            950000,
             OrderType.BUY
         );
 
@@ -125,19 +132,25 @@ contract OrderManagerTest is Test {
 
     function testGetEligbibleOrders() public {
         testAddOrder();
+        vm.prank(keeper);
         uint256[] memory _returnArray = manager.getEligbleOrders();
-        assertEq(_returnArray.length, 4);
+        assertEq(_returnArray[0], 1);
+        assertEq(_returnArray[1], 3);
     }
 
     function testExecuteOrders() public {
         testAddOrder();
         uint256[] memory _returnArray = manager.getEligbleOrders();
+
+        vm.prank(keeper);
         manager.executeOrders(_returnArray);
 
         (, , , , OrderStatus memory _status, ) = manager.ordersMapping(1);
         assertEq(_status.executed, true);
+        console.log(_status.executed);
 
         (, , , , _status, ) = manager.ordersMapping(3);
         assertEq(_status.executed, true);
+        console.log(_status.executed);
     }
 }

@@ -23,5 +23,6 @@ enum OrderType {
 enum Modules {
     QUOTER,
     SWAPER,
-    VAULT
+    VAULT,
+    KEEPER
 }
