@@ -11,6 +11,8 @@ import { IWETHGateway } from "./lib/AAVE/gateway/IWETHGateway.sol";
 // Local imports
 import { Tokens } from "../vault/lib/Tokens.sol";
 
+// import "forge-std/console.sol";
+
 // @notice vault integrated with yield generating strategies
 abstract contract AAVE {
     // -----------------------------------------------------------------------
@@ -97,6 +99,9 @@ abstract contract AAVE {
         // recompute deposits with yield
         _recomputeDeposits(aToken_);
 
+        // transfer tokens temp to vault
+        IERC20(_token).transferFrom(msg.sender, address(this), _amount);
+
         // deposit to pool
         pool.supply(_token, _amount, address(this), 0);
 
@@ -138,19 +143,35 @@ abstract contract AAVE {
         // aToken
         address aToken_ = aTokens[_token];
 
-        // recompute deposits with yield
-        _recomputeDeposits(aToken_);
-
         // get deposit index
         uint256 depositIndex_ = orderToDeposit[_orderId];
+
+        // recompute deposits with yield
+        _recomputeDeposits(aToken_);
 
         // get amount to withdraw
         uint256 amount_ = deposits[aToken_][depositIndex_].amount;
 
-        // withdraw from pool
-        pool.withdraw(_token, amount_, address(this));
+        // withdraw based on token type
+        if (_token == Tokens.MATIC) {
+            // approve wrapped matic for unwrap
+            // console.logString("Approve");
+            IERC20(Tokens.wMATIC).approve(address(gateway), amount_);
+            // withdraw native from gateway
+            // console.logString("WithdrawETH");
+            // TODO: Fails with "Arithmetic over/underflow"
+            gateway.withdrawETH(address(pool), amount_, address(this));
+            // transfer native back to sender
+            // console.logString("Transfer back");
+            payable(msg.sender).transfer(amount_);
+        } else {
+            // withdraw from pool
+            pool.withdraw(_token, amount_, address(this));
+            // transfer back to sender
+            IERC20(_token).transfer(msg.sender, amount_);
+        }
 
-        // remov deposit
+        // remove deposit
         _removeDeposit(aToken_, depositIndex_);
 
         // remove deposit index
