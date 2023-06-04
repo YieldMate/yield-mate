@@ -31,6 +31,7 @@ abstract contract AAVE {
     mapping (address => address) public aTokens;
     mapping (address => Deposit[]) public deposits;
     mapping (address => uint256) public depositLength;
+    mapping (uint256 => uint256) public orderToDeposit;
     mapping (address => uint256) public totalSupplies;
 
     // -----------------------------------------------------------------------
@@ -133,7 +134,6 @@ abstract contract AAVE {
     /// @dev withdraws funds from AAVE contract
     /// @param _token address of ERC20
     /// @param _orderId ID of order
-    /// @return amount_ actual number of tokens with yield
     function _withdraw(address _token, uint256 _orderId) internal {
         // aToken
         address aToken_ = aTokens[_token];
@@ -142,19 +142,19 @@ abstract contract AAVE {
         _recomputeDeposits(aToken_);
 
         // get deposit index
-        uint256 depositIndex_ = depositsIndexes[_orderId];
+        uint256 depositIndex_ = orderToDeposit[_orderId];
 
         // get amount to withdraw
-        uint256 amount_ = deposits[_aToken][depositIndex_].amount;
+        uint256 amount_ = deposits[aToken_][depositIndex_].amount;
 
         // withdraw from pool
         pool.withdraw(_token, amount_, address(this));
 
         // remov deposit
-        _removeDeposit(_aToken, depositIndex_);
+        _removeDeposit(aToken_, depositIndex_);
 
         // remove deposit index
-        delete depositsIndexes[_orderId];
+        delete orderToDeposit[_orderId];
     }
 
     function _recomputeDeposits(address _aToken) internal {
@@ -189,7 +189,7 @@ abstract contract AAVE {
         totalSupplies[_aToken] += _amount;
 
         // map order id to index of deposit
-        depositsIndexes[_orderId] = depositLength[_aToken];
+        orderToDeposit[_orderId] = depositLength[_aToken];
 
         // increase deposits length
         depositLength[_aToken] += 1;

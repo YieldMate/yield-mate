@@ -70,7 +70,6 @@ contract Vault is IVault, AAVE {
 
     function withdraw(
         address _token,
-        uint256 _amount,
         uint256 _orderId
     ) external {
         // update storage
@@ -79,7 +78,7 @@ contract Vault is IVault, AAVE {
         // send funds from underlying protocol back to the user
         Strategy strategy_ = resolvers[_token];
         if (strategy_ == Strategy.AAVE) {
-            _withdraw(_token, _amount, _orderId);
+            _withdraw(_token, _orderId);
         } else if (strategy_ == Strategy.Unsupported) {
             revert UnsupportedStrategy();
         }
