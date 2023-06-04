@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
-import {AutomationCompatible} from "@chainlink/src/v0.8/AutomationCompatible.sol";
-import {IOrderManager} from "../order-manager/IOrderManager.sol";
+pragma solidity 0.8.20;
+import { AutomationCompatible } from "@chainlink/src/v0.8/AutomationCompatible.sol";
+import { IOrderManager } from "../order-manager/IOrderManager.sol";
 
-contract Automatition is AutomationCompatible {
+contract Automation is AutomationCompatible {
     // get manager interface
     IOrderManager private orderManager;
 
