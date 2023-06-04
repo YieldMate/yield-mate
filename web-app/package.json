@@ -1,0 +1,52 @@
+{
+  "name": "web-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start",
+    "deploy:fleek": "fleek sites deploy",
+    "deploy:vercel": "vercel"
+  },
+  "dependencies": {
+    "@fleekxyz/cli": "^0.3.0",
+    "@fontsource/quattrocento": "^4.5.10",
+    "@fontsource/questrial": "^4.5.11",
+    "@t3-oss/env-nextjs": "^0.2.1",
+    "connectkit": "^1.2.3",
+    "daisyui": "^2.51.6",
+    "decimal.js": "^10.4.3",
+    "ethers": "^5.7.2",
+    "jotai": "^2.1.0",
+    "next": "^13.4.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.43.9",
+    "react-wrap-balancer": "^0.5.0",
+    "wagmi": "^0.12.12",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.9",
+    "@types/eslint": "^8.21.3",
+    "@types/node": "^18.15.5",
+    "@types/prettier": "^2.7.2",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "autoprefixer": "^10.4.14",
+    "eslint": "^8.36.0",
+    "eslint-config-next": "^13.4.1",
+    "postcss": "^8.4.21",
+    "prettier": "^2.8.6",
+    "prettier-plugin-tailwindcss": "^0.2.6",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.0.2"
+  },
+  "ct3aMetadata": {
+    "initVersion": "7.12.1"
+  }
+}

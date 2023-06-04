@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity 0.8.20;
+import {OrderManager} from "./libs/order-manager/OrderManager.sol";
 
-contract YieldMate {
-    function deposit(address _token, uint256 _amount) external returns (bool) {
-        // TODO: deposit to yield
-    }
-}
+// contract YieldMate is OrderManager {}

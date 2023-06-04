@@ -3,8 +3,8 @@ pragma solidity 0.8.20;
 
 // Local imports
 import { IVault } from "./interfaces/IVault.sol";
-import { AAVE } from "./strategies/AAVE.sol";
-import { Tokens } from "./lib/Tokens.sol";
+import { AAVE } from "./libs/strategies/AAVE.sol";
+import { Tokens } from "./libs/vault/lib/Tokens.sol";
 
 /// @notice vault integrated with yield generating strategies
 contract Vault is IVault, AAVE {

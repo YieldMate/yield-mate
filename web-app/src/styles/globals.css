@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Questrial";
+  background-repeat: repeat;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Quattrocento";
+}
+
+h1 {
+  font-size: 3.75rem;
+  letter-spacing: 0.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.modal-box {
+  @apply max-w-xl;
+}
+
+.steps .step {
+  @apply text-left;
+}
+
+.stat-value {
+  font-size: 2rem;
+}

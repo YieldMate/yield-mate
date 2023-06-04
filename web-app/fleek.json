@@ -1,0 +1,6 @@
+{
+  "id": "clhji1snu0000ia0827bc71v5",
+  "name": "yield-mate",
+  "distDir": "build",
+  "buildCommand": "npm run build"
+}
