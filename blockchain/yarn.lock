@@ -431,6 +431,10 @@ deep-eql@^4.1.2:
   dependencies:
     type-detect "^4.0.0"
 
+ds-test@dapphub/ds-test:
+  version "1.0.0"
+  resolved "https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0"
+
 elliptic@6.5.4:
   version "6.5.4"
   resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.4.tgz#da37cebd31e79a1367e941b592ed1fbebd58abbb"
@@ -450,6 +454,10 @@ fill-range@^7.0.1:
   integrity sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==
   dependencies:
     to-regex-range "^5.0.1"
+
+forge-std@foundry-rs/forge-std:
+  version "1.5.6"
+  resolved "https://codeload.github.com/foundry-rs/forge-std/tar.gz/b00f504daf0bdd8cf2e67973e2c86bd213cda400"
 
 fsevents@~2.3.2:
   version "2.3.2"

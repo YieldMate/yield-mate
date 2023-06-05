@@ -15,6 +15,8 @@
     "@chainlink/contracts": "^0.6.1",
     "@openzeppelin/contracts": "^4.8.3",
     "@uniswap/v3-core": "https://github.com/Uniswap/v3-core#0.8",
-    "@uniswap/v3-periphery": "https://github.com/Uniswap/v3-periphery#0.8"
+    "@uniswap/v3-periphery": "https://github.com/Uniswap/v3-periphery#0.8",
+    "forge-std": "foundry-rs/forge-std",
+    "ds-test": "dapphub/ds-test"
   }
 }

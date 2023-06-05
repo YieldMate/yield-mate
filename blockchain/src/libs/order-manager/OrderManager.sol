@@ -64,7 +64,7 @@ contract OrderManager {
     ) internal {
         address(_order.assetIn).call(
             abi.encodeWithSignature(
-                "deposit(address,uint256)",
+                "approve(address,uint256)",
                 address(vault),
                 _order.amountIn
             )
@@ -131,6 +131,7 @@ contract OrderManager {
         for (uint256 i = 0; i < _offersIds.length; i++) {
             OrderInfo memory _orderInfo = ordersMapping[_offersIds[i]];
             if (_orderInfo.status.executed) {} else {
+                // TODO: witdraw from vault
                 _executeOrder(_orderInfo, _offersIds[i]);
             }
         }

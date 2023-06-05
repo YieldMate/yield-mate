@@ -6,7 +6,7 @@ import "forge-std/StdUtils.sol";
 import {OrderManager, Modules} from "../../src/libs/order-manager/OrderManager.sol";
 import {Quoter} from "../../src/libs/order-manager/price-engine/Quoter.sol";
 import {Swaper} from "../../src/libs/order-manager/swaper/Swaper.sol";
-import {Vault} from "../../src/mocks/Vault.sol";
+import {Vault} from "../../src/libs/vault/Vault.sol";
 
 import {OrderInfo, OrderStatus, OrderType} from "../../src/libs/order-manager/lib/Objects.sol";
 
