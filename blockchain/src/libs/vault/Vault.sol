@@ -49,6 +49,9 @@ contract Vault is IVault, AAVE {
     // -----------------------------------------------------------------------
 
     /// @dev deposits funds via attached strategy for given asset
+    /// @param _token asset used to deposit, see src/libs/vault/lib/Tokens.sol
+    /// @param _amount number of tokens for deposit
+    /// @param _orderId order manager number
     function deposit(
         address _token,
         uint256 _amount,
@@ -58,7 +61,7 @@ contract Vault is IVault, AAVE {
         Strategy strategy_ = resolvers[_token];
         if (strategy_ == Strategy.AAVE) {
             if (_token == Tokens.MATIC) {
-                _depositNative(_token, _amount, _orderId);
+                revert UnsupportedToken();
             } else {
                 _deposit(_token, _amount, _orderId);
             }
@@ -67,13 +70,20 @@ contract Vault is IVault, AAVE {
         }
     }
 
+    /// @dev withdraw funds from strategy
+    /// @param _token asset used to withdraw, see src/libs/vault/lib/Tokens.sol
+    /// @param _orderId order manager number
     function withdraw(
         address _token,
         uint256 _orderId
     ) external returns (uint256 _amount) {
         Strategy strategy_ = resolvers[_token];
         if (strategy_ == Strategy.AAVE) {
-            _amount = _withdraw(_token, _orderId);
+            if (_token == Tokens.MATIC) {
+                revert UnsupportedToken();
+            } else {
+                _amount = _withdraw(_token, _orderId);
+            }
         } else if (strategy_ == Strategy.Unsupported) {
             revert UnsupportedStrategy();
         }

@@ -43,6 +43,7 @@ abstract contract AAVE {
 
     error NotEnoughAllowance();
     error NotEnoughMsgValue();
+    error UnsupportedToken();
 
     // -----------------------------------------------------------------------
     //                              Constructor
@@ -110,33 +111,6 @@ abstract contract AAVE {
         _addDeposit(aToken_, _amount, _orderId);
     }
 
-    /// @dev deposits native token (MATIC) to AAVE contract
-    /// @param _token address of ERC20
-    /// @param _amount number of ERC20 to deposit
-    /// @param _orderId ID of order
-    function _depositNative(
-        address _token,
-        uint256 _amount,
-        uint256 _orderId
-    ) internal {
-        // aToken
-        address aToken_ = aTokens[_token];
-
-        // validation
-        if (msg.value < _amount) {
-            revert NotEnoughMsgValue();
-        }
-
-        // recompute deposits with yield
-        _recomputeDeposits(aToken_);
-
-        // AAVE integration
-        gateway.depositETH{value: _amount}(address(pool), address(this), 0);
-
-        // add new deposit
-        _addDeposit(aToken_, _amount, _orderId);
-    }
-
     /// @dev withdraws funds from AAVE contract
     /// @param _token address of ERC20
     /// @param _orderId ID of order
@@ -156,24 +130,10 @@ abstract contract AAVE {
         // get amount to withdraw
         amount_ = deposits[aToken_][depositIndex_].amount;
 
-        // withdraw based on token type
-        if (_token == Tokens.MATIC) {
-            // approve wrapped matic for unwrap
-            // console.logString("Approve");
-            IERC20(Tokens.wMATIC).approve(address(gateway), amount_);
-            // withdraw native from gateway
-            // console.logString("WithdrawETH");
-            // TODO: Fails with "Arithmetic over/underflow"
-            gateway.withdrawETH(address(pool), amount_, address(this));
-            // transfer native back to sender
-            // console.logString("Transfer back");
-            payable(msg.sender).transfer(amount_);
-        } else {
-            // withdraw from pool
-            pool.withdraw(_token, amount_, address(this));
-            // transfer back to sender
-            IERC20(_token).transfer(msg.sender, amount_);
-        }
+        // withdraw from pool
+        pool.withdraw(_token, amount_, address(this));
+        // transfer back to sender
+        IERC20(_token).transfer(msg.sender, amount_);
 
         // remove deposit
         _removeDeposit(aToken_, depositIndex_);

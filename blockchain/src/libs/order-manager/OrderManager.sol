@@ -7,7 +7,7 @@ import {IQuoter} from "../order-manager/price-engine/IQuoter.sol";
 import {Swaper} from "../order-manager/swaper/Swaper.sol";
 import {IVault} from "../vault/IVault.sol";
 
-import "./lib/Errors.sol";
+import "./lib/Model.sol";
 
 import "forge-std/StdUtils.sol";
 
@@ -29,6 +29,7 @@ contract OrderManager {
 
     Counters.Counter orderId;
 
+    // user > order number > orderId
     mapping(address => mapping(uint256 => uint256)) internal userToOrderMapping;
     mapping(address => uint256) internal userToOrderCountMapping; // how many orders user has
     mapping(uint256 => OrderInfo) public ordersMapping;
@@ -60,6 +61,7 @@ contract OrderManager {
         } else {
             revert("invalidModule");
         }
+        emit Events.ModuleSetUp(_moduleType, _moduleAddress);
     }
 
     function depositToVault(
@@ -74,6 +76,7 @@ contract OrderManager {
             )
         );
         vault.deposit(_order.assetIn, _order.amountIn, _orderId);
+        emit Events.DepositToVault(_orderId, _order.assetIn, _order.amountIn);
     }
 
     function addOrder(
@@ -121,7 +124,43 @@ contract OrderManager {
 
         depositToVault(ordersMapping[_orderId], _orderId);
 
+        emit Events.OrderAdded(
+            _orderId,
+            _tokenIn,
+            _tokenOut,
+            _amountIn,
+            _price,
+            _orderType
+        );
+
         return _orderId;
+    }
+
+    function cancelOrder(uint256 _orderId) external {
+        if (userToOrderCountMapping[msg.sender] != 0) revert InvalidOrderId();
+        uint256 _index = hasOrder(msg.sender, _orderId);
+
+        if (_index == 0) revert InvalidOrderId();
+
+        vault.withdraw(ordersMapping[_orderId].assetIn, _orderId);
+
+        // TODO: re-check this logic - recheck what happens where order gets executed/deleted
+        delete ordersMapping[_orderId];
+
+        emit Events.OrderCanceled(_orderId);
+    }
+
+    function hasOrder(
+        address creator,
+        uint256 _orderId
+    ) internal view returns (uint256) {
+        uint256 ordersCount = userToOrderCountMapping[creator];
+        for (uint256 i = 0; i < ordersCount; i++) {
+            if (userToOrderMapping[creator][i] == _orderId) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     function executeOrders(uint256[] memory _offersIds) external {
@@ -135,6 +174,11 @@ contract OrderManager {
                 uint256 _amount = vault.withdraw(
                     _orderInfo.assetIn,
                     _offersIds[i]
+                );
+                emit Events.WithdrawFromVault(
+                    _offersIds[i],
+                    _orderInfo.assetIn,
+                    _amount
                 );
 
                 _orderInfo.amountIn = _amount;
@@ -188,6 +232,8 @@ contract OrderManager {
 
         // update order info
         ordersMapping[_orderId] = _orderInfo;
+
+        emit Events.OrderExecuted(_orderId);
     }
 
     function getEligbleOrders()
@@ -223,6 +269,7 @@ contract OrderManager {
         for (uint256 i = 0; i < _index; i++) {
             _eligible[i] = eligbleOrdersIds[i];
         }
+
         return _eligible;
     }
 

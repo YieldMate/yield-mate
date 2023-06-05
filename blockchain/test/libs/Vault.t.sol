@@ -67,16 +67,4 @@ contract VaultTest is Test {
         // assert
         assertEqUint(IERC20(Tokens.USDC).balanceOf(alice), amount_);
     }
-
-    function testWithdrawNative() public {
-        // deposit
-        testDepositNative();
-
-        // amount
-        // uint256 amount_ = 10**18;
-
-        // withdraw
-        // TODO: Fix for withdraw native
-        // vault.withdraw(Tokens.MATIC, amount_);
-    }
 }

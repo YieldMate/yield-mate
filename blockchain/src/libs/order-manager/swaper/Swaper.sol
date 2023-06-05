@@ -38,7 +38,7 @@ contract Swaper {
                 recipient: recipient,
                 deadline: block.timestamp + 5,
                 amountIn: amountIn,
-                amountOutMinimum: estAmountOut - estAmountOut / 100, // 1% slippage // TODO: think if slippage should be set by user
+                amountOutMinimum: estAmountOut - (estAmountOut / 100), // 1% slippage // TODO: think if slippage should be set by user
                 sqrtPriceLimitX96: 0 // sqrtPriceLimitX96
             });
         amountOut = swapRouter.exactInputSingle(params);
