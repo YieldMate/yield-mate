@@ -134,7 +134,8 @@ contract OrderManagerTest is Test {
         vm.prank(keeper);
         uint256[] memory _returnArray = manager.getEligbleOrders();
         assertEq(_returnArray[0], 1);
-        assertEq(_returnArray[1], 3);
+        assertEq(_returnArray[1], 2);
+        assertEq(_returnArray[2], 3);
     }
 
     function testExecuteOrders() public {

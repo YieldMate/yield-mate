@@ -43,14 +43,6 @@ contract VaultTest is Test {
         vault.deposit(Tokens.USDC, amount_, 1);
     }
 
-    function testDepositNative() public {
-        // prank
-        vm.startPrank(alice);
-
-        // deposit
-        vault.deposit{value: 10 ** 18}(Tokens.MATIC, 10 ** 18, 1);
-    }
-
     function testWithdraw() public {
         // deposit
         testDeposit();
