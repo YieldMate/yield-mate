@@ -278,6 +278,7 @@ contract OrderManager {
         OrderInfo memory _orderInfo
     ) internal view returns (uint256 _price, uint256 _estAmountOut) {
         /// @dev if order is buy, then we need to get price of assetOut in assetIn
+        // TODO: maybe this could be done in easier way
         if (_orderInfo.orderType == OrderType.BUY) {
             _price = quoter.getQuote(
                 _orderInfo.assetOut,
