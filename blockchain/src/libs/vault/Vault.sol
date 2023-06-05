@@ -67,14 +67,13 @@ contract Vault is IVault, AAVE {
         }
     }
 
-    function withdraw(address _token, uint256 _orderId) external {
-        // update storage
-        // TODO
-
-        // send funds from underlying protocol back to the user
+    function withdraw(
+        address _token,
+        uint256 _orderId
+    ) external returns (uint256 _amount) {
         Strategy strategy_ = resolvers[_token];
         if (strategy_ == Strategy.AAVE) {
-            _withdraw(_token, _orderId);
+            _amount = _withdraw(_token, _orderId);
         } else if (strategy_ == Strategy.Unsupported) {
             revert UnsupportedStrategy();
         }

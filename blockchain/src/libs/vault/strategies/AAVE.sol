@@ -140,7 +140,10 @@ abstract contract AAVE {
     /// @dev withdraws funds from AAVE contract
     /// @param _token address of ERC20
     /// @param _orderId ID of order
-    function _withdraw(address _token, uint256 _orderId) internal {
+    function _withdraw(
+        address _token,
+        uint256 _orderId
+    ) internal returns (uint256 amount_) {
         // aToken
         address aToken_ = aTokens[_token];
 
@@ -151,7 +154,7 @@ abstract contract AAVE {
         _recomputeDeposits(aToken_);
 
         // get amount to withdraw
-        uint256 amount_ = deposits[aToken_][depositIndex_].amount;
+        amount_ = deposits[aToken_][depositIndex_].amount;
 
         // withdraw based on token type
         if (_token == Tokens.MATIC) {

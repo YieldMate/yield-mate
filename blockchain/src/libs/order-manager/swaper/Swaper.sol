@@ -29,8 +29,6 @@ contract Swaper {
             revert("only orderManager can call this function");
         }
 
-        // console.log()
-
         TransferHelper.safeApprove(tokenIn, address(swapRouter), amountIn);
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
@@ -41,7 +39,7 @@ contract Swaper {
                 deadline: block.timestamp + 5,
                 amountIn: amountIn,
                 amountOutMinimum: estAmountOut - estAmountOut / 100, // 1% slippage // TODO: think if slippage should be set by user
-                sqrtPriceLimitX96: sqrtPriceLimitX96
+                sqrtPriceLimitX96: 0 // sqrtPriceLimitX96
             });
         amountOut = swapRouter.exactInputSingle(params);
     }

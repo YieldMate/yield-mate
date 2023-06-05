@@ -76,10 +76,6 @@ contract OrderManager {
         vault.deposit(_order.assetIn, _order.amountIn, _orderId);
     }
 
-    function withdrawFromVault(uint256 _orderId) internal {
-        vault.withdraw(address(0), _orderId);
-    }
-
     function addOrder(
         address _tokenIn,
         address _tokenOut,
@@ -134,19 +130,14 @@ contract OrderManager {
 
         for (uint256 i = 0; i < _offersIds.length; i++) {
             OrderInfo memory _orderInfo = ordersMapping[_offersIds[i]];
+
             if (_orderInfo.status.executed) {} else {
-                console.log("executing order: ", _offersIds[i]);
-
-                address[] memory _users = new address[](1);
-                _users[0] = address(this);
-
-                (, bytes memory data) = address(_orderInfo.assetIn).call(
-                    abi.encodeWithSignature("balanceOf(address)", address(this))
+                uint256 _amount = vault.withdraw(
+                    _orderInfo.assetIn,
+                    _offersIds[i]
                 );
 
-                console.log(abi.decode(data, (uint256)));
-
-                // TODO: witdraw from vault
+                _orderInfo.amountIn = _amount;
                 _executeOrder(_orderInfo, _offersIds[i]);
             }
         }
@@ -169,11 +160,15 @@ contract OrderManager {
 
         if (!success) revert TransferFailed();
 
-        (, uint256 _estAmountOut) = fetchOrderDetails(_orderInfo);
+        (uint256 _price, uint256 _estAmountOut) = fetchOrderDetails(_orderInfo);
 
-        uint160 _sqrtPriceX96 = quoter.reversePriceToSqrt(
-            _orderInfo.targetPrice
-        );
+        uint160 _sqrtPriceX96;
+
+        if (_orderInfo.orderType == OrderType.BUY) {
+            _sqrtPriceX96 = quoter.reversePriceToSqrt(_orderInfo.targetPrice);
+        } else {
+            _sqrtPriceX96 = quoter.reversePriceToSqrt(_price);
+        }
 
         // perform a swap
         uint256 _amountOut = swaper.swapExactInputSingle(
