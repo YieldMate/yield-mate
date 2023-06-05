@@ -2,14 +2,14 @@
 pragma solidity 0.8.20;
 
 // OpenZeppelin imports
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // AAVE imports
-import { IPool } from "./lib/AAVE/pool/IPool.sol";
-import { IWETHGateway } from "./lib/AAVE/gateway/IWETHGateway.sol";
+import {IPool} from "./lib/AAVE/pool/IPool.sol";
+import {IWETHGateway} from "./lib/AAVE/gateway/IWETHGateway.sol";
 
 // Local imports
-import { Tokens } from "../vault/lib/Tokens.sol";
+import {Tokens} from "../lib/Tokens.sol";
 
 // import "forge-std/console.sol";
 
@@ -29,12 +29,13 @@ abstract contract AAVE {
     // -----------------------------------------------------------------------
 
     IPool public pool = IPool(0x794a61358D6845594F94dc1DB02A252b5b4814aD);
-    IWETHGateway public gateway = IWETHGateway(0x1e4b7A6b903680eab0c5dAbcb8fD429cD2a9598c);
-    mapping (address => address) public aTokens;
-    mapping (address => Deposit[]) public deposits;
-    mapping (address => uint256) public depositLength;
-    mapping (uint256 => uint256) public orderToDeposit;
-    mapping (address => uint256) public totalSupplies;
+    IWETHGateway public gateway =
+        IWETHGateway(0x1e4b7A6b903680eab0c5dAbcb8fD429cD2a9598c);
+    mapping(address => address) public aTokens;
+    mapping(address => Deposit[]) public deposits;
+    mapping(address => uint256) public depositLength;
+    mapping(uint256 => uint256) public orderToDeposit;
+    mapping(address => uint256) public totalSupplies;
 
     // -----------------------------------------------------------------------
     //                              Errors
@@ -190,7 +191,7 @@ abstract contract AAVE {
             uint256 length_ = depositLength[_aToken];
             for (uint256 i = 0; i < length_; i++) {
                 uint256 amount_ = deposits[_aToken][i].amount;
-                deposits[_aToken][i].amount = amount_ * current_ / last_;
+                deposits[_aToken][i].amount = (amount_ * current_) / last_;
             }
         }
 

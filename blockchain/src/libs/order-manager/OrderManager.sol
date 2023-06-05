@@ -9,6 +9,10 @@ import {IVault} from "../vault/IVault.sol";
 
 import "./lib/Errors.sol";
 
+import "forge-std/StdUtils.sol";
+
+import "forge-std/console.sol";
+
 interface IERC20 {
     function decimals() external view returns (uint8);
 }
@@ -73,7 +77,7 @@ contract OrderManager {
     }
 
     function withdrawFromVault(uint256 _orderId) internal {
-        vault.withdraw(_orderId);
+        vault.withdraw(address(0), _orderId);
     }
 
     function addOrder(
@@ -131,6 +135,17 @@ contract OrderManager {
         for (uint256 i = 0; i < _offersIds.length; i++) {
             OrderInfo memory _orderInfo = ordersMapping[_offersIds[i]];
             if (_orderInfo.status.executed) {} else {
+                console.log("executing order: ", _offersIds[i]);
+
+                address[] memory _users = new address[](1);
+                _users[0] = address(this);
+
+                (, bytes memory data) = address(_orderInfo.assetIn).call(
+                    abi.encodeWithSignature("balanceOf(address)", address(this))
+                );
+
+                console.log(abi.decode(data, (uint256)));
+
                 // TODO: witdraw from vault
                 _executeOrder(_orderInfo, _offersIds[i]);
             }

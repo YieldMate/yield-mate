@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 import "forge-std/Test.sol";
 import "forge-std/StdUtils.sol";
+import "forge-std/console.sol";
 
 import {OrderManager, Modules} from "../../src/libs/order-manager/OrderManager.sol";
 import {Quoter} from "../../src/libs/order-manager/price-engine/Quoter.sol";
@@ -11,8 +12,6 @@ import {Vault} from "../../src/libs/vault/Vault.sol";
 import {OrderInfo, OrderStatus, OrderType} from "../../src/libs/order-manager/lib/Objects.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import "forge-std/console.sol";
 
 contract OrderManagerTest is Test {
     OrderManager public manager;

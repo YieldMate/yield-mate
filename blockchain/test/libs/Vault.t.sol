@@ -5,10 +5,10 @@ import "forge-std/Test.sol";
 import "forge-std/StdUtils.sol";
 import "forge-std/console.sol";
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { Vault } from "../../src/Vault.sol";
-import { Tokens } from "../../src/libs/vault/lib/Tokens.sol";
+import {Vault} from "../../src/libs/vault/Vault.sol";
+import {Tokens} from "../../src/libs/vault/lib/Tokens.sol";
 
 contract VaultTest is Test {
     Vault public vault;
@@ -31,7 +31,7 @@ contract VaultTest is Test {
         vm.startPrank(alice);
 
         // amount
-        uint256 amount_ = 10**9;
+        uint256 amount_ = 10 ** 9;
 
         // mint
         deal(Tokens.USDC, alice, amount_);
@@ -40,12 +40,7 @@ contract VaultTest is Test {
         IERC20(Tokens.USDC).approve(address(vault), amount_);
 
         // deposit
-        vault.deposit(
-            Tokens.USDC,
-            amount_,
-            1
-        );
-
+        vault.deposit(Tokens.USDC, amount_, 1);
     }
 
     function testDepositNative() public {
@@ -53,11 +48,7 @@ contract VaultTest is Test {
         vm.startPrank(alice);
 
         // deposit
-        vault.deposit{value: 10**18}(
-            Tokens.MATIC,
-            10**18,
-            1
-        );
+        vault.deposit{value: 10 ** 18}(Tokens.MATIC, 10 ** 18, 1);
     }
 
     function testWithdraw() public {
@@ -65,7 +56,7 @@ contract VaultTest is Test {
         testDeposit();
 
         // amount
-        uint256 amount_ = 10**9;
+        uint256 amount_ = 10 ** 9;
 
         // assert
         assertEqUint(IERC20(Tokens.USDC).balanceOf(alice), 0);

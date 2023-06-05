@@ -4,6 +4,8 @@ pragma solidity 0.8.20;
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
+import "forge-std/console.sol";
+
 contract Swaper {
     ISwapRouter public immutable swapRouter;
     address private orderManager;
@@ -26,6 +28,9 @@ contract Swaper {
         if (msg.sender != orderManager) {
             revert("only orderManager can call this function");
         }
+
+        // console.log()
+
         TransferHelper.safeApprove(tokenIn, address(swapRouter), amountIn);
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
@@ -33,7 +38,7 @@ contract Swaper {
                 tokenOut: tokenOut,
                 fee: POOL_FEE,
                 recipient: recipient,
-                deadline: block.timestamp + 1,
+                deadline: block.timestamp + 5,
                 amountIn: amountIn,
                 amountOutMinimum: estAmountOut - estAmountOut / 100, // 1% slippage // TODO: think if slippage should be set by user
                 sqrtPriceLimitX96: sqrtPriceLimitX96
