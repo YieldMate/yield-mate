@@ -59,4 +59,15 @@ contract VaultTest is Test {
         // assert
         assertEqUint(IERC20(Tokens.USDC).balanceOf(alice), amount_);
     }
+
+    function testGetTokenAmount() public {
+        // deposit
+        testDeposit();
+
+        // get token amount
+        uint256 amount_ = vault.getTokenAmount(Tokens.USDC, 1);
+
+        // assert
+        assertGe(amount_, 10 ** 9);
+    }
 }

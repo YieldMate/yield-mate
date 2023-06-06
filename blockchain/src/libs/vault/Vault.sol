@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+// OpenZeppelin imports
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 // Local imports
 import {IVault} from "./IVault.sol";
 import {AAVE} from "./strategies/AAVE.sol";
 import {Tokens} from "./lib/Tokens.sol";
+
+import "forge-std/console.sol";
 
 /// @notice vault integrated with yield generating strategies
 contract Vault is IVault, AAVE {
@@ -76,16 +81,35 @@ contract Vault is IVault, AAVE {
     function withdraw(
         address _token,
         uint256 _orderId
-    ) external returns (uint256 _amount) {
+    ) external returns (uint256 amount_) {
         Strategy strategy_ = resolvers[_token];
         if (strategy_ == Strategy.AAVE) {
             if (_token == Tokens.MATIC) {
                 revert UnsupportedToken();
             } else {
-                _amount = _withdraw(_token, _orderId);
+                amount_ = _withdraw(_token, _orderId);
             }
         } else if (strategy_ == Strategy.Unsupported) {
             revert UnsupportedStrategy();
         }
+    }
+
+    function getTokenAmount(
+        address _token,
+        uint256 _orderId
+    ) external view returns (uint256) {
+        // aToken
+        address aToken_ = aTokens[_token];
+        // current
+        uint256 currentTotal_ = IERC20(aToken_).balanceOf(address(this));
+        // last
+        uint256 lastTotal_ = totalSupplies[aToken_];
+        // index
+        uint256 orderIndex_ = orderToDeposit[_orderId];
+        // user
+        Deposit memory userDeposit_ = deposits[aToken_][orderIndex_];
+        // current * user / last
+        uint256 amountWithYield_ = (currentTotal_ * userDeposit_.amount) / lastTotal_;
+        return amountWithYield_;
     }
 }

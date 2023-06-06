@@ -39,4 +39,9 @@ interface IVault {
         address _token,
         uint256 _orderId
     ) external returns (uint256);
+
+    function getTokenAmount(
+        address _token,
+        uint256 _orderId
+    ) external returns (uint256);
 }
