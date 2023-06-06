@@ -20,7 +20,7 @@ export const calculateExtraYield = ({
 
   const targetProfit =
     status === "pending"
-      ? 0
+      ? new Decimal(0)
       : targetWithdrawableDecimal.minus(targetAmountDecimal);
 
   return {
