@@ -10,6 +10,7 @@ import { type ChangeEvent } from "react";
 import Arrows from "../assets/Arrows";
 import TokenPreview from "./TokenPreview";
 import Decimal from "decimal.js";
+import ApproveButton from "./ApproveButton";
 
 type Inputs = {
   paymentAmount: string;
@@ -137,7 +138,7 @@ export default function SwapForm() {
           />
           <label
             htmlFor="tokens-modal"
-            className="absolute right-0 top-0 h-[112px] w-[240px] cursor-pointer  rounded-lg hover:bg-zinc-600"
+            className="absolute right-0 top-0 h-[112px] w-[256px] cursor-pointer  rounded-lg hover:bg-zinc-600"
             onClick={() => {
               setModalType("payment");
             }}
@@ -192,7 +193,7 @@ export default function SwapForm() {
           />
           <label
             htmlFor="tokens-modal"
-            className="absolute right-0 top-0 h-[112px] w-[240px] cursor-pointer rounded-lg hover:bg-zinc-600"
+            className="absolute right-0 top-0 h-[112px] w-[256px] cursor-pointer rounded-lg hover:bg-zinc-600"
             onClick={() => {
               setModalType("target");
             }}
@@ -203,9 +204,11 @@ export default function SwapForm() {
       </div>
 
       <div className="card-actions mt-8 justify-end">
-        <button className="btn-primary btn" disabled={!isValid}>
-          Place order
-        </button>
+        <ApproveButton
+          paymentAmount={paymentAmount}
+          price={ratio}
+          disabled={!isValid}
+        />
       </div>
     </form>
   );

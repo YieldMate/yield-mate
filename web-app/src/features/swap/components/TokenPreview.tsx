@@ -3,6 +3,7 @@ import Balance from "~/features/wallet/components/Balance";
 import { type Token } from "../types/tokens";
 import useIsTestnet from "~/features/wallet/hooks/useIsTestnet";
 import Image from "next/image";
+import { useIsMounted } from "connectkit";
 
 export type TokenPreviewProps = {
   token: Token;
@@ -16,9 +17,16 @@ export default function TokenPreview({
   showBalance,
 }: TokenPreviewProps) {
   const isTestnet = useIsTestnet();
+  const isMounted = useIsMounted();
 
-  const address = isTestnet ? token.addressTestnet : token.address;
-  const explorerUrl = isTestnet
+  const address = !isMounted
+    ? ""
+    : isTestnet
+    ? token.addressTestnet
+    : token.address;
+  const explorerUrl = !isMounted
+    ? ""
+    : isTestnet
     ? `https://mumbai.polygonscan.com/token/${address}`
     : `https://polygonscan.com/token/${address}`;
   return (
