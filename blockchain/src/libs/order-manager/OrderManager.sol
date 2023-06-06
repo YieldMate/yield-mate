@@ -32,7 +32,7 @@ contract OrderManager {
     // user > order number > orderId
     mapping(address => mapping(uint256 => uint256)) internal userToOrderMapping;
     mapping(address => uint256) internal userToOrderCountMapping; // how many orders user has
-    mapping(uint256 => OrderInfo) public ordersMapping;
+    mapping(uint256 => OrderInfo) internal ordersMapping;
     EnumerableSet.UintSet internal orders; // we store here orderIds'
 
     modifier isPoolValid(address _tokenIn, address _tokenOut) {
@@ -134,6 +134,15 @@ contract OrderManager {
         );
 
         return _orderId;
+    }
+
+    function withdraw(uint256 _orderId) external {
+        if (userToOrderCountMapping[msg.sender] != 0) revert InvalidOrderId();
+        uint256 _index = hasOrder(msg.sender, _orderId);
+
+        if (_index == 0) revert InvalidOrderId();
+
+        vault.withdraw(ordersMapping[_orderId].assetIn, _orderId);
     }
 
     function cancelOrder(uint256 _orderId) external {
@@ -301,5 +310,25 @@ contract OrderManager {
                 (_orderInfo.amountIn * _price) /
                 10 ** IERC20(_orderInfo.assetIn).decimals();
         }
+    }
+
+    function getOrdersInfo(
+        address _user
+    )
+        public
+        view
+        returns (uint256[] memory _orderIds, OrderInfo[] memory _orders)
+    {
+        uint256 ordersCount = userToOrderCountMapping[_user];
+        _orders = new OrderInfo[](ordersCount);
+        _orderIds = new uint256[](ordersCount);
+
+        for (uint256 i = 0; i < ordersCount; i++) {
+            uint256 _orderId = userToOrderMapping[_user][i];
+            _orders[i] = ordersMapping[_orderId];
+            _orderIds[i] = _orderId;
+        }
+
+        return (_orderIds, _orders);
     }
 }
