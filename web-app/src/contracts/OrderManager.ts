@@ -1,5 +1,5 @@
 export const OrderManager = {
-  address: "0x9Ac37cDeEFC40516D9Efae949A9E008E61dE1313",
+  address: "0xe59911e5b5B37a8983A6F6B7528eE0b79dE814A1",
   addressTestnet: "0x0",
   abi: [
     {
@@ -14,12 +14,27 @@ export const OrderManager = {
     },
     {
       inputs: [],
+      name: "OrderAlreadyExecuted",
+      type: "error",
+    },
+    {
+      inputs: [],
+      name: "OrderNotExecuted",
+      type: "error",
+    },
+    {
+      inputs: [],
       name: "OrderNotFound",
       type: "error",
     },
     {
       inputs: [],
       name: "TransferFailed",
+      type: "error",
+    },
+    {
+      inputs: [],
+      name: "UserHasNoOrders",
       type: "error",
     },
     {
@@ -144,6 +159,19 @@ export const OrderManager = {
           name: "orderId",
           type: "uint256",
         },
+      ],
+      name: "OrderWithdrawn",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "orderId",
+          type: "uint256",
+        },
         {
           indexed: false,
           internalType: "address",
@@ -241,6 +269,74 @@ export const OrderManager = {
     {
       inputs: [
         {
+          internalType: "address",
+          name: "_user",
+          type: "address",
+        },
+      ],
+      name: "getOrdersInfo",
+      outputs: [
+        {
+          internalType: "uint256[]",
+          name: "_orderIds",
+          type: "uint256[]",
+        },
+        {
+          components: [
+            {
+              internalType: "address",
+              name: "assetIn",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "assetOut",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "amountIn",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "targetPrice",
+              type: "uint256",
+            },
+            {
+              components: [
+                {
+                  internalType: "bool",
+                  name: "executed",
+                  type: "bool",
+                },
+                {
+                  internalType: "uint256",
+                  name: "amountOut",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct OrderStatus",
+              name: "status",
+              type: "tuple",
+            },
+            {
+              internalType: "enum OrderType",
+              name: "orderType",
+              type: "uint8",
+            },
+          ],
+          internalType: "struct OrderInfo[]",
+          name: "_orders",
+          type: "tuple[]",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
           internalType: "uint256",
           name: "",
           type: "uint256",
@@ -308,6 +404,62 @@ export const OrderManager = {
         },
       ],
       name: "setUpModule",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "",
+          type: "address",
+        },
+      ],
+      name: "userToOrderCountMapping",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "",
+          type: "address",
+        },
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      name: "userToOrderMapping",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "_orderId",
+          type: "uint256",
+        },
+      ],
+      name: "withdraw",
       outputs: [],
       stateMutability: "nonpayable",
       type: "function",

@@ -9,7 +9,7 @@ export const SUPPORTED_TOKENS: readonly Token[] = [
     decimals: 18,
   },
   {
-    address: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+    address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
     addressTestnet: "0x0000000000000000000000000000000000000000",
     symbol: "WETH",
     icon: "/eth.svg",
@@ -37,7 +37,7 @@ export const SUPPORTED_TOKENS: readonly Token[] = [
     decimals: 6,
   },
   {
-    address: "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+    address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
     addressTestnet: "0xeb03b068ee09fae768219cafb9173bb92ae18e12",
     symbol: "DAI",
     icon: "/dai.svg",

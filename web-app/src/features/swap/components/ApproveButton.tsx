@@ -40,13 +40,14 @@ export default function ApproveButton({
     ? BigNumber.from(0)
     : parseUnits(debouncedPaymentAmount, paymentToken.decimals);
 
-  const { config: allowanceConfig } = usePrepareContractWrite({
-    address: paymentTokenAddress,
-    abi: erc20ABI,
-    functionName: "approve",
-    args: [orderManagerAddress, paymentAmountBigNumber.toBigInt()],
-    enabled: !disabled,
-  });
+  const { config: allowanceConfig, isLoading: isPreparationLoading } =
+    usePrepareContractWrite({
+      address: paymentTokenAddress,
+      abi: erc20ABI,
+      functionName: "approve",
+      args: [orderManagerAddress, paymentAmountBigNumber.toBigInt()],
+      enabled: !disabled,
+    });
 
   const { data: allowanceData, write: writeAllowance } =
     useContractWrite(allowanceConfig);
@@ -65,7 +66,7 @@ export default function ApproveButton({
     <button
       className="btn-primary btn"
       onClick={writeAllowance}
-      disabled={disabled || isAllowanceLoading}
+      disabled={disabled || isAllowanceLoading || isPreparationLoading}
     >
       {isAllowanceLoading ? "Waiting for approval..." : "Approve"}
     </button>

@@ -20,7 +20,7 @@ export default function OrdersList({ orders }: OrdersListProps) {
   return (
     <div className="flex flex-col gap-16 pb-16">
       {ordersFiltered.map((order) => (
-        <OrderCard key={order.id} order={order} />
+        <OrderCard key={order.id.toString()} order={order} />
       ))}
     </div>
   );

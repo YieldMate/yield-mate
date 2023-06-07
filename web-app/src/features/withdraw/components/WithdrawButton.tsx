@@ -27,6 +27,8 @@ export default function WithdrawButton({ order }: WithdrawButtonProps) {
       htmlFor="withdraw-modal"
       role="button"
       onClick={handleWithdraw}
-    >{`Withdraw ${status === "pending" ? paymentToken : targetToken}`}</label>
+    >{`Withdraw ${
+      status === "pending" ? paymentToken.symbol : targetToken.symbol
+    }`}</label>
   );
 }

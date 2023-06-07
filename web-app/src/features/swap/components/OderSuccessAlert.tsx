@@ -11,10 +11,10 @@ export default function OrderSuccessAlert({ txHash }: SuccessAlertProps) {
     : `https://polygonscan.com/tx/${txHash}`;
 
   return (
-    <div className="alert w-fit">
+    <div className="alert alert-success w-fit">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6 shrink-0 stroke-info"
+        className="h-6 w-6 shrink-0 stroke-current"
         fill="none"
         viewBox="0 0 24 24"
       >
