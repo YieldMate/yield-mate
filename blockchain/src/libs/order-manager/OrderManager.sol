@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {OrderInfo, OrderStatus, OrderType, Modules} from "./lib/Objects.sol";
-import {IQuoter} from "../order-manager/price-engine/IQuoter.sol";
+import {IQuoter} from "../order-manager/quoter/IQuoter.sol";
 import {Swaper} from "../order-manager/swaper/Swaper.sol";
 import {IVault} from "../vault/IVault.sol";
 
@@ -29,10 +29,10 @@ contract OrderManager {
 
     Counters.Counter orderId;
 
-    // user > order number > orderId
-    mapping(address => mapping(uint256 => uint256)) internal userToOrderMapping;
-    mapping(address => uint256) internal userToOrderCountMapping; // how many orders user has
-    mapping(uint256 => OrderInfo) internal ordersMapping;
+    // user > order index (number) > orderId
+    mapping(address => mapping(uint256 => uint256)) public userToOrderMapping;
+    mapping(address => uint256) public userToOrderCountMapping; // how many orders user has
+    mapping(uint256 => OrderInfo) public ordersMapping;
     EnumerableSet.UintSet internal orders; // we store here orderIds'
 
     modifier isPoolValid(address _tokenIn, address _tokenOut) {
@@ -64,7 +64,7 @@ contract OrderManager {
         emit Events.ModuleSetUp(_moduleType, _moduleAddress);
     }
 
-    function depositToVault(
+    function _depositToVault(
         OrderInfo memory _order,
         uint256 _orderId
     ) internal {
@@ -122,7 +122,7 @@ contract OrderManager {
         // add orderId to orders array
         orders.add(_orderId);
 
-        depositToVault(ordersMapping[_orderId], _orderId);
+        _depositToVault(ordersMapping[_orderId], _orderId);
 
         emit Events.OrderAdded(
             _orderId,
@@ -137,29 +137,54 @@ contract OrderManager {
     }
 
     function withdraw(uint256 _orderId) external {
-        if (userToOrderCountMapping[msg.sender] != 0) revert InvalidOrderId();
-        uint256 _index = hasOrder(msg.sender, _orderId);
+        if (userToOrderCountMapping[msg.sender] == 0) revert InvalidOrderId();
+        _hasOrder(msg.sender, _orderId);
 
-        if (_index == 0) revert InvalidOrderId();
+        /// @dev order must be executed
+        if (!ordersMapping[_orderId].status.executed) revert OrderNotExecuted();
 
-        vault.withdraw(ordersMapping[_orderId].assetIn, _orderId);
+        uint256 _amount = ordersMapping[_orderId].status.amountOut;
+
+        (bool result, ) = (ordersMapping[_orderId].assetOut).call(
+            abi.encodeWithSignature(
+                "transfer(address,uint256)",
+                msg.sender,
+                _amount
+            )
+        );
+        if (!result) revert TransferFailed();
+        emit Events.OrderWithdrawn(_orderId);
     }
 
     function cancelOrder(uint256 _orderId) external {
-        if (userToOrderCountMapping[msg.sender] != 0) revert InvalidOrderId();
-        uint256 _index = hasOrder(msg.sender, _orderId);
+        if (userToOrderCountMapping[msg.sender] == 0) revert UserHasNoOrders();
+        if (ordersMapping[_orderId].status.executed)
+            revert OrderAlreadyExecuted();
 
-        if (_index == 0) revert InvalidOrderId();
+        _hasOrder(msg.sender, _orderId);
 
-        vault.withdraw(ordersMapping[_orderId].assetIn, _orderId);
+        ordersMapping[_orderId].status.executed = true; // set order as executed so it can't be withdrawn more then 1 time
 
-        // TODO: re-check this logic - recheck what happens where order gets executed/deleted
-        delete ordersMapping[_orderId];
+        uint256 _amount = vault.withdraw(
+            ordersMapping[_orderId].assetIn,
+            _orderId
+        );
+
+        (bool result, ) = (ordersMapping[_orderId].assetIn).call(
+            abi.encodeWithSignature(
+                "transfer(address,uint256)",
+                msg.sender,
+                _amount
+            )
+        );
+        if (!result) revert TransferFailed();
 
         emit Events.OrderCanceled(_orderId);
+
+        orders.remove(_orderId);
     }
 
-    function hasOrder(
+    function _hasOrder(
         address creator,
         uint256 _orderId
     ) internal view returns (uint256) {
@@ -169,7 +194,7 @@ contract OrderManager {
                 return i;
             }
         }
-        return 0;
+        revert InvalidOrderId();
     }
 
     function executeOrders(uint256[] memory _offersIds) external {
@@ -213,7 +238,9 @@ contract OrderManager {
 
         if (!success) revert TransferFailed();
 
-        (uint256 _price, uint256 _estAmountOut) = fetchOrderDetails(_orderInfo);
+        (uint256 _price, uint256 _estAmountOut) = _fetchOrderDetails(
+            _orderInfo
+        );
 
         uint160 _sqrtPriceX96;
 
@@ -242,6 +269,8 @@ contract OrderManager {
         // update order info
         ordersMapping[_orderId] = _orderInfo;
 
+        orders.remove(_orderId);
+
         emit Events.OrderExecuted(_orderId);
     }
 
@@ -261,7 +290,7 @@ contract OrderManager {
         for (uint256 i = 0; i < arrLength; i++) {
             OrderInfo memory _orderInfo = ordersMapping[orders.at(i)];
 
-            (uint256 _price, ) = fetchOrderDetails(_orderInfo);
+            (uint256 _price, ) = _fetchOrderDetails(_orderInfo);
 
             if (
                 (_orderInfo.orderType == OrderType.SELL &&
@@ -283,32 +312,23 @@ contract OrderManager {
     }
 
     /// @dev fetch order details - current price and estimated amountOut
-    function fetchOrderDetails(
+    function _fetchOrderDetails(
         OrderInfo memory _orderInfo
     ) internal view returns (uint256 _price, uint256 _estAmountOut) {
         /// @dev if order is buy, then we need to get price of assetOut in assetIn
-        // TODO: maybe this could be done in easier way
         if (_orderInfo.orderType == OrderType.BUY) {
-            _price = quoter.getQuote(
-                _orderInfo.assetOut,
+            (_estAmountOut, _price) = quoter.getQuote(
                 _orderInfo.assetIn,
-                1 * 10 ** IERC20(_orderInfo.assetOut).decimals()
+                _orderInfo.assetOut,
+                _orderInfo.amountIn
             );
-            _estAmountOut =
-                (_orderInfo.amountIn *
-                    10 ** IERC20(_orderInfo.assetOut).decimals()) /
-                _price;
         } else {
             /// @dev if order is sell, then we need to get price of assetIn in assetOut
-            _price = quoter.getQuote(
-                _orderInfo.assetIn,
+            (_estAmountOut, _price) = quoter.getQuote(
                 _orderInfo.assetOut,
-                1 * 10 ** IERC20(_orderInfo.assetIn).decimals()
+                _orderInfo.assetIn,
+                _orderInfo.amountIn
             );
-
-            _estAmountOut =
-                (_orderInfo.amountIn * _price) /
-                10 ** IERC20(_orderInfo.assetIn).decimals();
         }
     }
 

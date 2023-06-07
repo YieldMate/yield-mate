@@ -4,7 +4,7 @@ import "forge-std/Test.sol";
 import "forge-std/StdUtils.sol";
 import "forge-std/console.sol";
 
-import "../../src/libs/order-manager/price-engine/Quoter.sol";
+import "../../src/libs/order-manager/quoter/Quoter.sol";
 
 contract OrderManagerTest is Test {
     Quoter public quoter;
@@ -30,7 +30,7 @@ contract OrderManagerTest is Test {
         address WMATIC = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
         address USDC = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
 
-        uint256 value;
+        uint256 amount;
 
         // value = quoter.getQuote(
         //     WMATIC, // dajemy matic
@@ -44,13 +44,13 @@ contract OrderManagerTest is Test {
         //     1 * 10 ** 6 // 1 matica
         // );
 
-        value = quoter.getQuote(
+        (amount, ) = quoter.getQuote(
             0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, // dajemy weth
             0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6, // za btc
             1 * 10 ** 18 // 1 matica
         );
 
         // dostaniemy
-        console.log(value);
+        console.log(amount);
     }
 }

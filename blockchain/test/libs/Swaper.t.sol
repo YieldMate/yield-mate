@@ -5,7 +5,7 @@ import "forge-std/StdUtils.sol";
 import "forge-std/console.sol";
 
 import "../../src/libs/order-manager/swaper/Swaper.sol";
-import "../../src/libs/order-manager/price-engine/Quoter.sol";
+import {Quoter} from "../../src/libs/order-manager/quoter/Quoter.sol";
 
 contract OrderManagerTest is Test {
     Swaper public swaper;

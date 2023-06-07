@@ -7,6 +7,11 @@ error TransferFailed();
 error OrderNotFound();
 error UnsupportedToken();
 error InvalidOrderId();
+error OrderNotExecuted();
+error UserHasNoOrders();
+error OrderAlreadyCanceled();
+error OrderAlreadyExecuted();
+error OrderAlreadyWithdrawn();
 
 library Events {
     event ModuleSetUp(Modules module, address moduleAddress);
@@ -30,4 +35,5 @@ library Events {
         OrderType orderType
     );
     event OrderCanceled(uint256 indexed orderId);
+    event OrderWithdrawn(uint256 indexed orderId);
 }

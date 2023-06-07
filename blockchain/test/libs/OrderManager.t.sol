@@ -5,13 +5,17 @@ import "forge-std/StdUtils.sol";
 import "forge-std/console.sol";
 
 import {OrderManager, Modules} from "../../src/libs/order-manager/OrderManager.sol";
-import {Quoter} from "../../src/libs/order-manager/price-engine/Quoter.sol";
+import "../../src/libs/order-manager/lib/Model.sol";
+
+import {Quoter} from "../../src/libs/order-manager/quoter/Quoter.sol";
 import {Swaper} from "../../src/libs/order-manager/swaper/Swaper.sol";
 import {Vault} from "../../src/libs/vault/Vault.sol";
 
 import {OrderInfo, OrderStatus, OrderType} from "../../src/libs/order-manager/lib/Objects.sol";
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+interface IERC20 {
+    function decimals() external view returns (uint8);
+}
 
 contract OrderManagerTest is Test {
     OrderManager public manager;
@@ -62,7 +66,6 @@ contract OrderManagerTest is Test {
         address _tokenIn,
         address _tokenOut,
         uint256 _amountIn,
-        uint256 _targetPrice,
         OrderType _type
     ) internal returns (uint256) {
         deal(_tokenIn, _sender, _amountIn);
@@ -78,11 +81,23 @@ contract OrderManagerTest is Test {
             )
         );
 
+        uint256 _price;
+
+        if (_type == OrderType.BUY) {
+            (, _price) = quoter.getQuote(_tokenIn, _tokenOut, _amountIn);
+            _price = _price + (_price / 100);
+        } else {
+            (, _price) = quoter.getQuote(_tokenOut, _tokenIn, _amountIn);
+            _price = _price - (_price / 100);
+        }
+
+        console.log(_tokenIn, _tokenOut, _price, uint8(_type));
+
         uint256 _orderId = manager.addOrder(
             _tokenIn,
             _tokenOut,
             _amountIn,
-            _targetPrice,
+            _price,
             _type
         );
         vm.stopPrank();
@@ -90,39 +105,17 @@ contract OrderManagerTest is Test {
     }
 
     function testAddOrder() public {
-        _addOrder(
-            address(123),
-            USDC,
-            WMATIC,
-            10 * 10 ** 6,
-            950000,
-            OrderType.BUY
-        );
+        _addOrder(address(123), USDC, WMATIC, 10 * 10 ** 6, OrderType.BUY);
 
-        _addOrder(
-            address(124),
-            USDT,
-            WBTC,
-            10 * 10 ** 6,
-            26000 * 10 ** 6,
-            OrderType.BUY
-        );
+        _addOrder(address(124), USDT, WBTC, 10 * 10 ** 6, OrderType.BUY);
 
-        _addOrder(
-            address(124),
-            WBTC,
-            USDT,
-            15 * 10 ** 6,
-            24000 * 10 ** 6,
-            OrderType.SELL
-        );
+        _addOrder(address(124), WBTC, USDT, 15 * 10 ** 6, OrderType.SELL);
 
         uint256 orderId = _addOrder(
             address(125),
             WMATIC,
             LINK,
             4 * 10 ** 18,
-            13 * 10 ** 16,
             OrderType.BUY
         );
 
@@ -147,10 +140,47 @@ contract OrderManagerTest is Test {
 
         (, , , , OrderStatus memory _status, ) = manager.ordersMapping(1);
         assertEq(_status.executed, true);
-        console.log(_status.executed);
 
         (, , , , _status, ) = manager.ordersMapping(3);
         assertEq(_status.executed, true);
-        console.log(_status.executed);
+    }
+
+    function testWithdrawOrder() public {
+        uint256 _orderId = _addOrder(
+            address(123),
+            USDC,
+            WMATIC,
+            10 * 10 ** 6,
+            OrderType.BUY
+        );
+
+        uint256[] memory _returnArray = manager.getEligbleOrders();
+
+        vm.prank(keeper);
+        manager.executeOrders(_returnArray);
+
+        vm.expectEmit(address(manager));
+        // emit the event we expect to see
+        emit Events.OrderWithdrawn(_orderId);
+
+        vm.prank(address(123));
+        manager.withdraw(_orderId);
+    }
+
+    function testCancelOrder() public {
+        uint256 _orderId = _addOrder(
+            address(123),
+            USDC,
+            WMATIC,
+            10 * 10 ** 6,
+            OrderType.BUY
+        );
+
+        vm.expectEmit(address(manager));
+        // emit the event we expect to see
+        emit Events.OrderCanceled(_orderId);
+
+        vm.prank(address(123));
+        manager.cancelOrder(_orderId);
     }
 }

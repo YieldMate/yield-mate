@@ -5,6 +5,10 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 
+interface IERC20 {
+    function decimals() external view returns (uint8);
+}
+
 contract Quoter {
     ISwapRouter public router;
     IUniswapV3Factory factory;
@@ -27,7 +31,7 @@ contract Quoter {
         address tokenIn,
         address tokenOut,
         uint256 amountIn
-    ) external view returns (uint256 amountOut) {
+    ) external view returns (uint256 amountOut, uint256 price) {
         address pool = factory.getPool(tokenIn, tokenOut, poolFee);
 
         require(pool != address(0), "Could not find pool");
@@ -39,6 +43,8 @@ contract Quoter {
             tokenIn,
             tokenOut
         );
+
+        price = (amountIn * 10 ** IERC20(tokenOut).decimals()) / amountOut;
     }
 
     function reversePriceToSqrt(
