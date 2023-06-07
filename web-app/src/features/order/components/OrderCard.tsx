@@ -3,6 +3,7 @@ import { type Order } from "../types/order";
 import { SUPPORTED_TOKENS } from "~/features/swap/constants/tokens";
 import ArrowsHorizontal from "../assets/ArrowsHorizontal";
 import WithdrawButton from "~/features/withdraw/components/WithdrawButton";
+import { calculateExtraYield } from "../helpers/calculateExtraYield";
 
 type OrderCardProps = {
   order: Order;
@@ -27,6 +28,8 @@ export default function OrderCard({ order }: OrderCardProps) {
     (token) => token.symbol === targetToken
   )!;
 
+  const { paymentProfit, targetProfit } = calculateExtraYield(order);
+
   return (
     <article className="card w-[900px] flex-row bg-base-100 p-8 shadow-xl">
       <ul className="steps steps-vertical w-[200px]">
@@ -48,21 +51,31 @@ export default function OrderCard({ order }: OrderCardProps) {
 
       <div className="flex flex-col justify-start gap-6">
         <h2 className="pl-6 text-2xl font-bold">Order ID: {id}</h2>
-        <div className="flex h-[112px] flex-row items-center gap-4 text-gray-400">
+        <div className="flex flex-row items-start gap-4 text-gray-400">
           <div className="flex w-[260px] shrink-0 flex-col">
             <TokenPreview className="pb-0" token={paymentTokenConfig} />
-            <span className="stat-value overflow-hidden text-ellipsis pl-6">
+            <span className="stat-value overflow-hidden text-ellipsis before:pointer-events-none before:content-['+'] before:[color:transparent]">
               {paymentAmount}
             </span>
+            {paymentProfit.greaterThan(0) && (
+              <span className="stat-value overflow-hidden text-ellipsis text-success">
+                +{paymentProfit.toString()}
+              </span>
+            )}
           </div>
-          <div className="h-16 w-16 shrink-0">
+          <div className="flex h-full w-16 shrink-0 items-center">
             <ArrowsHorizontal />
           </div>
           <div className="flex w-[260px] shrink-0 flex-col ">
             <TokenPreview className="pb-0" token={targetTokenConfig} />
-            <span className="stat-value  overflow-hidden text-ellipsis pl-6">
+            <span className="stat-value  overflow-hidden text-ellipsis before:pointer-events-none before:content-['+'] before:[color:transparent]">
               {targetAmount}
             </span>
+            {targetProfit.greaterThan(0) && (
+              <span className="stat-value overflow-hidden text-ellipsis text-success">
+                +{targetProfit.toString()}
+              </span>
+            )}
           </div>
         </div>
         <div className="mt-auto flex w-full flex-row justify-end gap-4">

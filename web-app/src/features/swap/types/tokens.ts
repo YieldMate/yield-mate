@@ -3,4 +3,5 @@ export type Token = {
   addressTestnet: `0x${string}`;
   symbol: string;
   icon: string;
+  decimals: number;
 };

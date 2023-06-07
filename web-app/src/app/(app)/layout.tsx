@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import Providers from "~/Providers";
 import LearnMoreModal from "~/features/layout/components/LearnMoreModal";
 import Navbar from "~/features/layout/components/Navbar";
@@ -12,6 +13,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <TokenModal />
         <LearnMoreModal />
         <WithdrawModal />
+        <Toaster />
         {children}
       </body>
     </Providers>
