@@ -10,6 +10,9 @@ import { useDebounce } from "usehooks-ts";
 import { BigNumber } from "ethers";
 import { OrderManager } from "~/contracts/OrderManager";
 import useIsTestnet from "~/features/wallet/hooks/useIsTestnet";
+import { toast } from "react-hot-toast";
+import { useEffect } from "react";
+import OrderSuccessAlert from "./OderSuccessAlert";
 
 export type SwapButtonProps = {
   paymentAmount: string;
@@ -68,6 +71,20 @@ export default function SwapButton({
     useWaitForTransaction({
       hash: orderData?.hash,
     });
+
+  useEffect(() => {
+    if (isOrderSuccess) {
+      toast.custom((t) => (
+        <div
+          className={`${
+            t.visible ? "animate-enter" : "animate-leave"
+          } pointer-events-auto flex w-full items-center justify-center rounded-lg `}
+        >
+          <OrderSuccessAlert txHash="0x1234567890" />
+        </div>
+      ));
+    }
+  }, [isOrderSuccess]);
 
   return (
     <button

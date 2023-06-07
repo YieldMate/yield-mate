@@ -111,7 +111,7 @@ export default function SwapForm() {
     });
     setPaymentToken(targetToken);
     setTargetToken(paymentToken);
-    if (ratio === "") return;
+    if (!ratio) return;
     setValue("ratio", new Decimal(1).dividedBy(ratio).toString(), {
       shouldValidate: true,
       shouldDirty: true,
@@ -148,15 +148,15 @@ export default function SwapForm() {
         </div>
         <div className="flex flex-row gap-4">
           <div
-            className="h-16 w-16 cursor-pointer rounded-lg hover:bg-base-200"
+            className="h-16 w-16 shrink-0 cursor-pointer rounded-lg hover:bg-base-200"
             onClick={swapTokens}
           >
             <Arrows />
           </div>
-          <div className="relative">
+          <div className="relative flex min-w-0">
             <input
               type="text"
-              className="h-16 rounded-lg bg-zinc-700 px-4 text-2xl "
+              className="h-16 min-w-0 rounded-lg bg-zinc-700 px-4 text-2xl"
               placeholder="0.00"
               inputMode="decimal"
               autoComplete="off"
@@ -173,7 +173,7 @@ export default function SwapForm() {
               </span>
             </div>
           </div>
-          <div className="flex h-16 items-center text-2xl text-secondary">
+          <div className="flex h-16 shrink-0 items-center whitespace-nowrap text-2xl text-secondary">
             <span>/ 1 {targetToken.symbol}</span>
           </div>
         </div>
