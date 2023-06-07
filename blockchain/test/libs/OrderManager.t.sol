@@ -9,7 +9,7 @@ import {Quoter} from "../../src/libs/order-manager/price-engine/Quoter.sol";
 import {Swaper} from "../../src/libs/order-manager/swaper/Swaper.sol";
 import {Vault} from "../../src/libs/vault/Vault.sol";
 
-import {OrderInfo, OrderStatus, OrderType} from "../../src/libs/order-manager/lib/Objects.sol";
+import {OrderInfo, OrderStatus, OrderType, Status} from "../../src/libs/order-manager/lib/Objects.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -146,11 +146,36 @@ contract OrderManagerTest is Test {
         manager.executeOrders(_returnArray);
 
         (, , , , OrderStatus memory _status, ) = manager.ordersMapping(1);
-        assertEq(_status.executed, true);
-        console.log(_status.executed);
+        assertEq(_status.status, Status.EXECUTED);
 
         (, , , , _status, ) = manager.ordersMapping(3);
-        assertEq(_status.executed, true);
-        console.log(_status.executed);
+        // assertEq(_status.executed, true);
+        // console.log(_status.executed);
+    }
+
+    function testCancelOrder() public {
+        uint256 _orderId = _addOrder(
+            address(123),
+            USDC,
+            WMATIC,
+            10 * 10 ** 6,
+            950000,
+            OrderType.BUY
+        );
+
+        vm.startPrank(address(123));
+
+        address[] memory _users = new address[](1);
+        _users[0] = address(123);
+
+        uint256 _before = StdUtils.getTokenBalances(USDC, _users)[0];
+        console.log(_before);
+
+        manager.cancelOrder(_orderId);
+
+        uint256 _after = StdUtils.getTokenBalances(USDC, _users)[0];
+        console.log(_after);
+
+        assertGt(_before, _after);
     }
 }

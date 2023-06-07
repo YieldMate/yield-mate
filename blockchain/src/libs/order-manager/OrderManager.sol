@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import {OrderInfo, OrderStatus, OrderType, Modules} from "./lib/Objects.sol";
+import {OrderInfo, OrderStatus, OrderType, Modules, Status} from "./lib/Objects.sol";
 import {IQuoter} from "../order-manager/price-engine/IQuoter.sol";
 import {Swaper} from "../order-manager/swaper/Swaper.sol";
 import {IVault} from "../vault/IVault.sol";
@@ -29,10 +29,10 @@ contract OrderManager {
 
     Counters.Counter orderId;
 
-    // user > order number > orderId
-    mapping(address => mapping(uint256 => uint256)) internal userToOrderMapping;
-    mapping(address => uint256) internal userToOrderCountMapping; // how many orders user has
-    mapping(uint256 => OrderInfo) internal ordersMapping;
+    // user > order index (number) > orderId
+    mapping(address => mapping(uint256 => uint256)) public userToOrderMapping;
+    mapping(address => uint256) public userToOrderCountMapping; // how many orders user has
+    mapping(uint256 => OrderInfo) public ordersMapping;
     EnumerableSet.UintSet internal orders; // we store here orderIds'
 
     modifier isPoolValid(address _tokenIn, address _tokenOut) {
@@ -115,7 +115,7 @@ contract OrderManager {
             targetPrice: _price,
             assetOut: _tokenOut,
             amountIn: _amountIn,
-            status: OrderStatus({executed: false, amountOut: 0}),
+            status: OrderStatus({status: Status.PENDING, amountOut: 0}),
             orderType: _orderType
         });
 
@@ -137,26 +137,58 @@ contract OrderManager {
     }
 
     function withdraw(uint256 _orderId) external {
-        if (userToOrderCountMapping[msg.sender] != 0) revert InvalidOrderId();
+        if (userToOrderCountMapping[msg.sender] == 0) revert UserHasNoOrders();
         uint256 _index = hasOrder(msg.sender, _orderId);
 
         if (_index == 0) revert InvalidOrderId();
 
-        vault.withdraw(ordersMapping[_orderId].assetIn, _orderId);
+        /// @dev order must be executed
+        if (ordersMapping[_orderId].status.status != Status.EXECUTED)
+            revert OrderNotExecuted();
+
+        uint256 _amount = ordersMapping[_orderId].status.amountOut;
+
+        (bool result, ) = (ordersMapping[_orderId].assetOut).call(
+            abi.encodeWithSignature(
+                "transfer(address,uint256)",
+                msg.sender,
+                _amount
+            )
+        );
+        if (!result) revert TransferFailed();
+        emit Events.OrderWithdrawn(_orderId);
     }
 
     function cancelOrder(uint256 _orderId) external {
-        if (userToOrderCountMapping[msg.sender] != 0) revert InvalidOrderId();
-        uint256 _index = hasOrder(msg.sender, _orderId);
+        if (userToOrderCountMapping[msg.sender] == 0) revert UserHasNoOrders();
+        if (ordersMapping[_orderId].status.status != Status.PENDING)
+            revert OrderAlreadyExecuted();
 
-        if (_index == 0) revert InvalidOrderId();
+        hasOrder(msg.sender, _orderId);
 
-        vault.withdraw(ordersMapping[_orderId].assetIn, _orderId);
+        if (ordersMapping[_orderId].status.status == Status.CANCELED)
+            revert OrderAlreadyCanceled();
+
+        ordersMapping[_orderId].status.status = Status.CANCELED;
+
+        uint256 _amount = vault.withdraw(
+            ordersMapping[_orderId].assetIn,
+            _orderId
+        );
+
+        (bool result, ) = (ordersMapping[_orderId].assetIn).call(
+            abi.encodeWithSignature(
+                "transfer(address,uint256)",
+                msg.sender,
+                _amount
+            )
+        );
+        if (!result) revert TransferFailed();
+
+        emit Events.OrderCanceled(_orderId);
 
         // TODO: re-check this logic - recheck what happens where order gets executed/deleted
         delete ordersMapping[_orderId];
-
-        emit Events.OrderCanceled(_orderId);
     }
 
     function hasOrder(
@@ -169,7 +201,7 @@ contract OrderManager {
                 return i;
             }
         }
-        return 0;
+        revert InvalidOrderId();
     }
 
     function executeOrders(uint256[] memory _offersIds) external {
@@ -179,7 +211,7 @@ contract OrderManager {
         for (uint256 i = 0; i < _offersIds.length; i++) {
             OrderInfo memory _orderInfo = ordersMapping[_offersIds[i]];
 
-            if (_orderInfo.status.executed) {} else {
+            if (_orderInfo.status.status == Status.PENDING) {} else {
                 uint256 _amount = vault.withdraw(
                     _orderInfo.assetIn,
                     _offersIds[i]
@@ -235,7 +267,7 @@ contract OrderManager {
 
         // update order status
         _orderInfo.status = OrderStatus({
-            executed: true,
+            status: Status.EXECUTED,
             amountOut: _amountOut
         });
 

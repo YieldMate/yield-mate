@@ -11,8 +11,15 @@ struct OrderInfo {
 }
 
 struct OrderStatus {
-    bool executed;
+    Status status;
     uint256 amountOut;
+}
+
+enum Status {
+    PENDING,
+    EXECUTED,
+    WITHDRAWN,
+    CANCELED
 }
 
 enum OrderType {
