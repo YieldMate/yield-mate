@@ -4,3 +4,6 @@
 [submodule "blockchain/lib/chainlink"]
 	path = blockchain/lib/chainlink
 	url = https://github.com/smartcontractkit/chainlink
+[submodule "blockchain/lib/forge-std"]
+	path = blockchain/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
