@@ -3,6 +3,7 @@ import { type Order } from "~/features/order/types/order";
 import { useOrderProfit } from "~/features/order/hooks/useOrderProfit";
 import ArrowsHorizontal from "~/features/order/assets/ArrowsHorizontal";
 import Image from "next/image";
+import ConfirmWithdrawButton from "./ConfirmWithdrawButton";
 
 const STATUS_TO_DESCRIPTION: Record<Order["status"], string> = {
   pending:
@@ -96,7 +97,7 @@ export default function WithdrawDetails({ order }: WithdrawDetailsProps) {
         </span>
       </p>
       <div className="flex w-full justify-end">
-        <button className="btn-primary btn">Confirm withdrawal</button>
+        <ConfirmWithdrawButton order={order} />
       </div>
     </div>
   );

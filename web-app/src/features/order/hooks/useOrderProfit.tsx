@@ -25,6 +25,7 @@ export const useOrderProfit = (order: Order) => {
     abi: Vault.abi,
     functionName: "getTokenAmount",
     args: [tokenAddress, order.id],
+    enabled: order.status !== "withdrawn",
   });
 
   const withdrawable =

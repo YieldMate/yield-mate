@@ -10,9 +10,11 @@ const transformData = (
   isTestnet: boolean
 ): Order[] => {
   const [ids, orders] = data;
-  return ids.map((id, index) => {
-    return rawOrderToObject(id, orders[index]!, { isTestnet });
-  }).reverse()
+  return ids
+    .map((id, index) => {
+      return rawOrderToObject(id, orders[index]!, { isTestnet });
+    })
+    .reverse();
 };
 
 export default function useOrders() {

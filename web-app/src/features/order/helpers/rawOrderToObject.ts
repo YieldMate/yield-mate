@@ -40,6 +40,10 @@ export const rawOrderToObject = (
     targetToken: assetOutToken,
     targetAmount,
     targetWithdrawable,
-    status: status.executed ? "completed" : "pending",
+    status: status.executed
+      ? "withdrawn"
+      : status.amountOut > 0
+      ? "completed"
+      : "pending",
   };
 };

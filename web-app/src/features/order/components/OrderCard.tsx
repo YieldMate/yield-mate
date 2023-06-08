@@ -1,7 +1,7 @@
 import TokenPreview from "~/features/swap/components/TokenPreview";
 import { type Order } from "../types/order";
 import ArrowsHorizontal from "../assets/ArrowsHorizontal";
-import WithdrawButton from "~/features/withdraw/components/WithdrawButton";
+import OpenWithdrawModalButton from "~/features/withdraw/components/OpenWithdrawModalButton";
 import { useOrderProfit } from "../hooks/useOrderProfit";
 
 type OrderCardProps = {
@@ -74,7 +74,7 @@ export default function OrderCard({ order }: OrderCardProps) {
           <label htmlFor="learn-more-modal" className="btn-ghost btn">
             How it works?
           </label>
-          <WithdrawButton order={order} />
+          <OpenWithdrawModalButton order={order} />
         </div>
       </div>
     </article>
