@@ -140,6 +140,9 @@ abstract contract AAVE {
 
         // remove deposit index
         delete orderToDeposit[_orderId];
+
+        // update supply
+        totalSupplies[aToken_] -= amount_;
     }
 
     function _recomputeDeposits(address _aToken) internal {
