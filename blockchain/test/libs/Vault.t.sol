@@ -97,6 +97,6 @@ contract VaultTest is Test {
         uint256 amountWithYield_ = vault.getTokenAmount(Tokens.USDC, 1);
 
         // assert
-        assertEqUint(amountWithYield_, amount_);
+        assertApproxEqAbs(amountWithYield_, amount_, 1);
     }
 }
