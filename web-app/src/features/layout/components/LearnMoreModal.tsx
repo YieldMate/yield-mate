@@ -22,13 +22,14 @@ export default function LearnMoreModal() {
           <p>
             {`Let's say Alice wants to buy 1 wETH for 2000 DAI. The current market
             price is 2100 DAI, so YieldMate redirects Alice's DAI to a yield
-            protocol where it starts earning interest. After some time, the
-            price of wETH drops to 2000 DAI. YieldMate then automatically
+            protocol where it starts earning interest. Alice's DAI sits there and
+            over time generates extra 50 DAI. After some time, the
+            price of wETH drops to 2050 DAI. YieldMate then automatically
             withdraws Alice's DAI from the yield protocol and sells it for 1
             wETH, which is then redirected back to the protocol. When Alice
             decides to withdraw her wETH, she realizes that even though she only
-            wanted to buy one token, the yield protocol generated an extra 10
-            DAI and 0.03 wETH.`}
+            wanted to buy one token, the yield protocol generated an extra 0.03 wETH and
+            on top of that Alice was able to buy the token at her desired price even though the market price never actually dropped to 2000 DAI.`}
           </p>
 
           <p>
