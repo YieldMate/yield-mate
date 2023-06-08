@@ -25,7 +25,7 @@ export default function Navbar() {
           </label>
           <ul
             tabIndex={0}
-            className="dropdown-content menu rounded-box menu-compact mt-3 w-52 bg-base-100 p-2 shadow"
+            className="dropdown-content menu rounded-box menu-compact mt-3 w-56 bg-base-100 p-2 shadow"
           >
             <li>
               <Link href="/new-order">New order</Link>
@@ -33,9 +33,9 @@ export default function Navbar() {
             <li>
               <Link href="/orders">My orders</Link>
             </li>
-            <li>
+            <li className="disabled">
               <a href="https://snapshot.org/#/yieldmate" target="_blank">
-                Governance
+                Governance (coming soon)
               </a>
             </li>
           </ul>
