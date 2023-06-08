@@ -1,9 +1,8 @@
 "use client";
-import { useAtomValue } from "jotai";
-import { withdrawModalOrderAtom } from "../state/withdrawModal";
 import { type Order } from "~/features/order/types/order";
-import { calculateExtraYield } from "~/features/order/helpers/calculateExtraYield";
-import Decimal from "decimal.js";
+import { useOrderProfit } from "~/features/order/hooks/useOrderProfit";
+import ArrowsHorizontal from "~/features/order/assets/ArrowsHorizontal";
+import Image from "next/image";
 
 const STATUS_TO_DESCRIPTION: Record<Order["status"], string> = {
   pending:
@@ -13,48 +12,88 @@ const STATUS_TO_DESCRIPTION: Record<Order["status"], string> = {
   withdrawn: "Your funds were withdrawn.",
 };
 
-export default function WithdrawDetails() {
-  const order = useAtomValue(withdrawModalOrderAtom);
-  if (!order) {
-    return null;
-  }
-  const {
-    paymentToken,
-    paymentAmount,
-    targetToken,
-    targetAmount,
-    status,
-    paymentWithdrawable,
-    targetWithdrawable,
-  } = order;
+export type WithdrawDetailsProps = {
+  order: Order;
+};
 
-  const { paymentProfit, targetProfit } = calculateExtraYield(order);
+export default function WithdrawDetails({ order }: WithdrawDetailsProps) {
+  const { paymentToken, paymentAmount, targetToken, targetAmount, status } =
+    order;
 
   const description = STATUS_TO_DESCRIPTION[status];
+  const hasPaymentProfit = order.status === "pending";
+  const { profit, withdrawable } = useOrderProfit(order);
 
   return (
-    <div>
+    <div className="prose-h3:mb-0 prose-h3:mt-4 prose-p:mb-0">
       <p>{description}</p>
       <h3>Initial order</h3>
-      <p className="grid grid-cols-[repeat(2,min-content)] gap-x-6">
-        <span className="font-bold">{`${paymentToken}: `}</span>
-        <span>{new Decimal(paymentAmount).toFixed(6)}</span>
-        <span className="font-bold">{`${targetToken}:  `}</span>
-        <span>{new Decimal(targetAmount).toFixed(6)}</span>
+      <p className="flex flex-row items-center gap-4 ">
+        <span className="flex flex-row items-center gap-1">
+          {paymentAmount.toString()}
+          <span className="font-bold">{`${paymentToken.symbol}`}</span>
+          <span className="not-prose">
+            <Image
+              src={paymentToken.icon}
+              alt={paymentToken.symbol + " icon"}
+              width={16}
+              height={16}
+            />
+          </span>
+        </span>
+        <span className="w-4">
+          <ArrowsHorizontal />
+        </span>
+        <span className="flex flex-row items-center gap-1">
+          {targetAmount.toString()}
+          <span className="font-bold">{`${targetToken.symbol}`}</span>
+          <span className="not-prose">
+            <Image
+              src={targetToken.icon}
+              alt={targetToken.symbol + " icon"}
+              width={16}
+              height={16}
+            />
+          </span>
+        </span>
       </p>
       <h3>Extra yield generated</h3>
-      <p className="grid grid-cols-[repeat(2,min-content)] gap-x-6">
-        <span className="font-bold">{`${paymentToken}: `}</span>
-        <span>{paymentProfit.toFixed(6)}</span>
-        <span className="font-bold">{`${targetToken}:  `}</span>
-        <span>{targetProfit.toFixed(6)}</span>
+      <p className="flex flex-row items-center gap-1 text-success">
+        <span>{profit ? profit.toFixed() : "-,--"}</span>
+        <span className="font-bold">
+          {hasPaymentProfit ? paymentToken.symbol : targetToken.symbol}
+        </span>
+        <span className="not-prose">
+          <Image
+            src={hasPaymentProfit ? paymentToken.icon : targetToken.icon}
+            alt={
+              hasPaymentProfit
+                ? paymentToken.symbol + " icon"
+                : targetToken.symbol + " icon"
+            }
+            width={16}
+            height={16}
+          />
+        </span>
       </p>
       <h3>Withdrawal summary</h3>
-      <p className="grid grid-cols-[repeat(2,min-content)] gap-x-6">
-        <span className="font-bold">{`${paymentToken}: `}</span>
-        <span>{new Decimal(paymentWithdrawable).toFixed(6)}</span>
-        <span className="font-bold">{`${targetToken}:  `}</span>
-        <span>{new Decimal(targetWithdrawable).toFixed(6)}</span>
+      <p className="flex flex-row items-center gap-1">
+        <span>{withdrawable ? withdrawable.toFixed() : "-,--"}</span>
+        <span className="font-bold">
+          {hasPaymentProfit ? paymentToken.symbol : targetToken.symbol}
+        </span>
+        <span className="not-prose">
+          <Image
+            src={hasPaymentProfit ? paymentToken.icon : targetToken.icon}
+            alt={
+              hasPaymentProfit
+                ? paymentToken.symbol + " icon"
+                : targetToken.symbol + " icon"
+            }
+            width={16}
+            height={16}
+          />
+        </span>
       </p>
       <div className="flex w-full justify-end">
         <button className="btn-primary btn">Confirm withdrawal</button>

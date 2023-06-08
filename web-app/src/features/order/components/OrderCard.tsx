@@ -2,7 +2,7 @@ import TokenPreview from "~/features/swap/components/TokenPreview";
 import { type Order } from "../types/order";
 import ArrowsHorizontal from "../assets/ArrowsHorizontal";
 import WithdrawButton from "~/features/withdraw/components/WithdrawButton";
-import { calculateExtraYield } from "../helpers/calculateExtraYield";
+import { useOrderProfit } from "../hooks/useOrderProfit";
 
 type OrderCardProps = {
   order: Order;
@@ -19,8 +19,8 @@ export default function OrderCard({ order }: OrderCardProps) {
     order;
 
   const stepsFilled = STATUS_TO_STEPS_FILLED[status];
-
-  const { paymentProfit, targetProfit } = calculateExtraYield(order);
+  const hasPaymentProfit = order.status === "pending";
+  const { profit } = useOrderProfit(order);
 
   return (
     <article className="card w-[900px] flex-row bg-base-100 p-8 shadow-xl">
@@ -46,12 +46,12 @@ export default function OrderCard({ order }: OrderCardProps) {
         <div className="flex flex-row items-start gap-4 text-gray-400">
           <div className="flex w-[260px] shrink-0 flex-col">
             <TokenPreview className="pb-0" token={paymentToken} />
-            <span className="stat-value overflow-hidden text-ellipsis before:pointer-events-none before:content-['+'] before:[color:transparent]">
+            <span className="stat-value overflow-hidden text-ellipsis pl-2 before:pointer-events-none before:content-['+'] before:[color:transparent]">
               {paymentAmount.toString()}
             </span>
-            {paymentProfit.greaterThan(0) && (
-              <span className="stat-value overflow-hidden text-ellipsis text-success">
-                +{paymentProfit.toString()}
+            {hasPaymentProfit && !!profit && (
+              <span className="stat-value overflow-hidden text-ellipsis pl-2 text-success">
+                +{profit.toFixed()}
               </span>
             )}
           </div>
@@ -60,12 +60,12 @@ export default function OrderCard({ order }: OrderCardProps) {
           </div>
           <div className="flex w-[260px] shrink-0 flex-col ">
             <TokenPreview className="pb-0" token={targetToken} />
-            <span className="stat-value  overflow-hidden text-ellipsis before:pointer-events-none before:content-['+'] before:[color:transparent]">
+            <span className="stat-value  overflow-hidden text-ellipsis pl-2 before:pointer-events-none before:content-['+'] before:[color:transparent]">
               {targetAmount.toString()}
             </span>
-            {targetProfit.greaterThan(0) && (
-              <span className="stat-value overflow-hidden text-ellipsis text-success">
-                +{targetProfit.toString()}
+            {!hasPaymentProfit && !!profit && (
+              <span className="stat-value overflow-hidden text-ellipsis pl-2 text-success">
+                +{profit.toFixed()}
               </span>
             )}
           </div>
