@@ -51,46 +51,52 @@ export default function SwapButton({
     ? BigNumber.from(0)
     : parseUnits(debouncedPrice, paymentToken.decimals);
 
-  const { config: orderConfig } = usePrepareContractWrite({
-    address: orderManagerAddress,
-    abi: OrderManager.abi,
-    functionName: "addOrder",
-    args: [
-      paymentTokenAddress,
-      targetTokenAddress,
-      paymentAmountBigNumber.toBigInt(),
-      priceBigNumber.toBigInt(),
-      0,
-    ],
-    enabled: !disabled,
-  });
+  const { config: orderConfig, isLoading: isPreparationLoading } =
+    usePrepareContractWrite({
+      address: orderManagerAddress,
+      abi: OrderManager.abi,
+      functionName: "addOrder",
+      args: [
+        paymentTokenAddress,
+        targetTokenAddress,
+        paymentAmountBigNumber.toBigInt(),
+        priceBigNumber.toBigInt(),
+        0,
+      ],
+      enabled: !disabled,
+    });
 
   const { data: orderData, write: writeOrder } = useContractWrite(orderConfig);
 
-  const { isLoading: isOrderLoading, isSuccess: isOrderSuccess } =
-    useWaitForTransaction({
-      hash: orderData?.hash,
-    });
+  const {
+    isLoading: isOrderLoading,
+    isSuccess: isOrderSuccess,
+    data: orderSuccessData,
+  } = useWaitForTransaction({
+    hash: orderData?.hash,
+  });
 
   useEffect(() => {
-    if (isOrderSuccess) {
+    if (isOrderSuccess && orderSuccessData?.transactionHash) {
       toast.custom((t) => (
         <div
           className={`${
             t.visible ? "animate-enter" : "animate-leave"
           } pointer-events-auto flex w-full items-center justify-center rounded-lg `}
         >
-          <OrderSuccessAlert txHash="0x1234567890" />
+          <OrderSuccessAlert txHash={orderSuccessData.transactionHash} />
         </div>
       ));
     }
-  }, [isOrderSuccess]);
+  }, [isOrderSuccess, orderSuccessData]);
 
   return (
     <button
       className="btn-primary btn"
       onClick={writeOrder}
-      disabled={disabled || isOrderLoading || isOrderSuccess}
+      disabled={
+        disabled || isOrderLoading || isOrderSuccess || isPreparationLoading
+      }
     >
       {isOrderLoading
         ? "Waiting for confirmation..."

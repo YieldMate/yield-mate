@@ -1,61 +1,35 @@
-import { type Order } from "../types/order";
+"use client";
+import { useAccount, useContractRead } from "wagmi";
+import { type RawOrder, type Order } from "../types/order";
+import { OrderManager } from "~/contracts/OrderManager";
+import { rawOrderToObject } from "../helpers/rawOrderToObject";
+import useIsTestnet from "~/features/wallet/hooks/useIsTestnet";
+
+const transformData = (
+  data: readonly [readonly bigint[], readonly RawOrder[]],
+  isTestnet: boolean
+): Order[] => {
+  const [ids, orders] = data;
+  return ids
+    .map((id, index) => {
+      return rawOrderToObject(id, orders[index]!, { isTestnet });
+    })
+    .reverse();
+};
 
 export default function useOrders() {
-  // TODO: implement when smart contract is ready
+  const { address } = useAccount();
+  const isTestnet = useIsTestnet();
 
+  const { data, isLoading } = useContractRead({
+    address: OrderManager.address,
+    abi: OrderManager.abi,
+    functionName: "getOrdersInfo",
+    args: [address || "0x0"],
+    enabled: !!address,
+  });
   return {
-    isLoading: false,
-    orders: [
-      {
-        id: "1",
-        paymentToken: "DAI",
-        paymentAmount: "2199",
-        paymentWithdrawable: "2200.0245",
-        targetToken: "WETH",
-        targetAmount: "1",
-        targetWithdrawable: "0",
-        status: "pending",
-      },
-      {
-        id: "2",
-        paymentToken: "STMATIC",
-        paymentAmount: "100",
-        paymentWithdrawable: "1.676",
-        targetToken: "MATIC",
-        targetAmount: "100",
-        targetWithdrawable: "100.000123",
-        status: "completed",
-      },
-      {
-        id: "3",
-        paymentToken: "USDT",
-        paymentAmount: "440",
-        paymentWithdrawable: "0",
-        targetToken: "CRV",
-        targetAmount: "2",
-        targetWithdrawable: "0",
-        status: "withdrawn",
-      },
-      {
-        id: "4",
-        paymentToken: "WETH",
-        paymentAmount: "0.0001",
-        paymentWithdrawable: "0.000107",
-        targetToken: "BIFI",
-        targetAmount: "1",
-        targetWithdrawable: "0",
-        status: "pending",
-      },
-      {
-        id: "5",
-        paymentToken: "MATIC",
-        paymentAmount: "100",
-        paymentWithdrawable: "0",
-        targetToken: "USDC",
-        targetAmount: "123",
-        targetWithdrawable: "0",
-        status: "withdrawn",
-      },
-    ] satisfies Order[],
+    isLoading,
+    orders: data && transformData(data, isTestnet),
   };
 }

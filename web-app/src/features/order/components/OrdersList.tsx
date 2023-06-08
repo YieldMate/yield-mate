@@ -19,9 +19,13 @@ export default function OrdersList({ orders }: OrdersListProps) {
 
   return (
     <div className="flex flex-col gap-16 pb-16">
-      {ordersFiltered.map((order) => (
-        <OrderCard key={order.id} order={order} />
-      ))}
+      {ordersFiltered.length === 0 ? (
+        <div>Nothing to show</div>
+      ) : (
+        ordersFiltered.map((order) => (
+          <OrderCard key={order.id.toString()} order={order} />
+        ))
+      )}
     </div>
   );
 }

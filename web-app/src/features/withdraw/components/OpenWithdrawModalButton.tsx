@@ -3,11 +3,13 @@ import { type Order } from "~/features/order/types/order";
 import { withdrawModalOrderAtom } from "../state/withdrawModal";
 import { useAtom } from "jotai";
 
-type WithdrawButtonProps = {
+type OpenWithdrawModalButtonProps = {
   order: Order;
 };
 
-export default function WithdrawButton({ order }: WithdrawButtonProps) {
+export default function OpenWithdrawModalButton({
+  order,
+}: OpenWithdrawModalButtonProps) {
   const { status, paymentToken, targetToken } = order;
   const [, setWithdrawModalOrder] = useAtom(withdrawModalOrderAtom);
   const handleWithdraw = () => {
@@ -27,6 +29,8 @@ export default function WithdrawButton({ order }: WithdrawButtonProps) {
       htmlFor="withdraw-modal"
       role="button"
       onClick={handleWithdraw}
-    >{`Withdraw ${status === "pending" ? paymentToken : targetToken}`}</label>
+    >{`Withdraw ${
+      status === "pending" ? paymentToken.symbol : targetToken.symbol
+    }`}</label>
   );
 }

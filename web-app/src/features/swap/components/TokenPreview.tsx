@@ -32,7 +32,7 @@ export default function TokenPreview({
   return (
     <article className={`stat rounded-md ${className || ""}`}>
       {showBalance && (
-        <div className="stat-title overflow-hidden">
+        <div className="stat-title overflow-hidden overflow-ellipsis">
           Balance: <Balance token={token} />
         </div>
       )}

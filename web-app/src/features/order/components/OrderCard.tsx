@@ -1,9 +1,8 @@
 import TokenPreview from "~/features/swap/components/TokenPreview";
 import { type Order } from "../types/order";
-import { SUPPORTED_TOKENS } from "~/features/swap/constants/tokens";
 import ArrowsHorizontal from "../assets/ArrowsHorizontal";
-import WithdrawButton from "~/features/withdraw/components/WithdrawButton";
-import { calculateExtraYield } from "../helpers/calculateExtraYield";
+import OpenWithdrawModalButton from "~/features/withdraw/components/OpenWithdrawModalButton";
+import { useOrderProfit } from "../hooks/useOrderProfit";
 
 type OrderCardProps = {
   order: Order;
@@ -20,46 +19,39 @@ export default function OrderCard({ order }: OrderCardProps) {
     order;
 
   const stepsFilled = STATUS_TO_STEPS_FILLED[status];
-
-  const paymentTokenConfig = SUPPORTED_TOKENS.find(
-    (token) => token.symbol === paymentToken
-  )!;
-  const targetTokenConfig = SUPPORTED_TOKENS.find(
-    (token) => token.symbol === targetToken
-  )!;
-
-  const { paymentProfit, targetProfit } = calculateExtraYield(order);
+  const hasPaymentProfit = order.status === "pending";
+  const { profit } = useOrderProfit(order);
 
   return (
     <article className="card w-[900px] flex-row bg-base-100 p-8 shadow-xl">
       <ul className="steps steps-vertical w-[200px]">
         <li className="step-primary step">Order placed</li>
         <li className={`step ${stepsFilled >= 2 ? "step-primary" : ""}`}>
-          {paymentToken} redirected to a yielding protocol
+          {paymentToken.symbol} redirected to a yielding protocol
         </li>
         <li className={`step ${stepsFilled >= 3 ? "step-primary" : ""}`}>
-          {targetToken} purchased{" "}
+          {targetToken.symbol} purchased{" "}
         </li>
         <li className={`step ${stepsFilled >= 4 ? "step-primary" : ""}`}>
-          {targetToken} redirected to a yielding protocol
+          {targetToken.symbol} redirected to a yielding protocol
         </li>
         <li className={`step ${stepsFilled >= 5 ? "step-primary" : ""}`}>
-          {targetToken} withdrawn
+          {targetToken.symbol} withdrawn
         </li>
       </ul>
       <div className="divider divider-horizontal h-full"></div>
 
       <div className="flex flex-col justify-start gap-6">
-        <h2 className="pl-6 text-2xl font-bold">Order ID: {id}</h2>
+        <h2 className="pl-6 text-2xl font-bold">Order ID: {id.toString()}</h2>
         <div className="flex flex-row items-start gap-4 text-gray-400">
           <div className="flex w-[260px] shrink-0 flex-col">
-            <TokenPreview className="pb-0" token={paymentTokenConfig} />
-            <span className="stat-value overflow-hidden text-ellipsis before:pointer-events-none before:content-['+'] before:[color:transparent]">
-              {paymentAmount}
+            <TokenPreview className="pb-0" token={paymentToken} />
+            <span className="stat-value overflow-hidden text-ellipsis pl-2 before:pointer-events-none before:content-['+'] before:[color:transparent]">
+              {paymentAmount.toString()}
             </span>
-            {paymentProfit.greaterThan(0) && (
-              <span className="stat-value overflow-hidden text-ellipsis text-success">
-                +{paymentProfit.toString()}
+            {hasPaymentProfit && !!profit && (
+              <span className="stat-value overflow-hidden text-ellipsis pl-2 text-success">
+                +{profit.toFixed()}
               </span>
             )}
           </div>
@@ -67,13 +59,13 @@ export default function OrderCard({ order }: OrderCardProps) {
             <ArrowsHorizontal />
           </div>
           <div className="flex w-[260px] shrink-0 flex-col ">
-            <TokenPreview className="pb-0" token={targetTokenConfig} />
-            <span className="stat-value  overflow-hidden text-ellipsis before:pointer-events-none before:content-['+'] before:[color:transparent]">
-              {targetAmount}
+            <TokenPreview className="pb-0" token={targetToken} />
+            <span className="stat-value  overflow-hidden text-ellipsis pl-2 before:pointer-events-none before:content-['+'] before:[color:transparent]">
+              {targetAmount.toString()}
             </span>
-            {targetProfit.greaterThan(0) && (
-              <span className="stat-value overflow-hidden text-ellipsis text-success">
-                +{targetProfit.toString()}
+            {!hasPaymentProfit && !!profit && (
+              <span className="stat-value overflow-hidden text-ellipsis pl-2 text-success">
+                +{profit.toFixed()}
               </span>
             )}
           </div>
@@ -82,7 +74,7 @@ export default function OrderCard({ order }: OrderCardProps) {
           <label htmlFor="learn-more-modal" className="btn-ghost btn">
             How it works?
           </label>
-          <WithdrawButton order={order} />
+          <OpenWithdrawModalButton order={order} />
         </div>
       </div>
     </article>

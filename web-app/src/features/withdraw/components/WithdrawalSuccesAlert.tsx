@@ -1,10 +1,12 @@
 import useIsTestnet from "~/features/wallet/hooks/useIsTestnet";
 
-export type SuccessAlertProps = {
+export type WithdrawalSuccessAlertProps = {
   txHash: string;
 };
 
-export default function OrderSuccessAlert({ txHash }: SuccessAlertProps) {
+export default function WithdrawalSuccessAlert({
+  txHash,
+}: WithdrawalSuccessAlertProps) {
   const isTestnet = useIsTestnet();
   const url = isTestnet
     ? `https://mumbai.polygonscan.com/tx/${txHash}`
@@ -27,7 +29,7 @@ export default function OrderSuccessAlert({ txHash }: SuccessAlertProps) {
       </svg>
 
       <span>
-        Your order has been successfully placed!{" "}
+        Your have successfully withdrawn your funds!{" "}
         <a href={url} target="_blank" className="link-primary link">
           View on PolygonScan
         </a>
