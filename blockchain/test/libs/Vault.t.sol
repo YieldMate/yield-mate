@@ -15,6 +15,7 @@ contract VaultTest is Test {
     uint256 polygonFork;
 
     address alice = address(1);
+    address bob = address(2);
 
     function setUp() public {
         // fork
@@ -26,21 +27,29 @@ contract VaultTest is Test {
         vault = new Vault();
     }
 
-    function testDeposit() public {
+    function _deposit(
+        address _account,
+        uint256 _orderId,
+        uint256 _ammout
+    ) internal {
         // prank
-        vm.startPrank(alice);
+        vm.startPrank(_account);
 
+        // mint
+        deal(Tokens.USDC, _account, _ammout);
+
+        // approve
+        IERC20(Tokens.USDC).approve(address(vault), _ammout);
+
+        // deposit
+        vault.deposit(Tokens.USDC, _ammout, _orderId);
+    }
+
+    function testDeposit() public {
         // amount
         uint256 amount_ = 10 ** 9;
 
-        // mint
-        deal(Tokens.USDC, alice, amount_);
-
-        // approve
-        IERC20(Tokens.USDC).approve(address(vault), amount_);
-
-        // deposit
-        vault.deposit(Tokens.USDC, amount_, 1);
+        _deposit(alice, 1, amount_);
     }
 
     function testWithdraw() public {
@@ -54,7 +63,7 @@ contract VaultTest is Test {
         assertEqUint(IERC20(Tokens.USDC).balanceOf(alice), 0);
 
         // withdraw
-        vault.withdraw(Tokens.USDC, amount_);
+        vault.withdraw(Tokens.USDC, 1);
 
         // assert
         assertEqUint(IERC20(Tokens.USDC).balanceOf(alice), amount_);
@@ -69,5 +78,25 @@ contract VaultTest is Test {
 
         // assert
         assertGe(amount_, 10 ** 9);
+    }
+
+    function testGetTokenAmountAfterWithdraw() public {
+        // amount
+        uint256 amount_ = 10 ** 9;
+
+        // deposit 1
+        _deposit(alice, 1, amount_);
+
+        // deposit 2
+        _deposit(bob, 2, amount_);
+
+        // withdraw bob order
+        vault.withdraw(Tokens.USDC, 2);
+
+        // get token amount
+        uint256 amountWithYield_ = vault.getTokenAmount(Tokens.USDC, 1);
+
+        // assert
+        assertEqUint(amountWithYield_, amount_);
     }
 }
