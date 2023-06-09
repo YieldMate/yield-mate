@@ -3,7 +3,7 @@
 YieldMate is a protocol that aims to provide a new way for asset management by
 utilizing smart limit order feature, which is a limit order integrated with yielding strategy.
 
-OrderManager: `0xA17072a36260a1d1C301ce3e9c3877a9f9Fb4008`
+OrderManager: `0x1120b54DD6372c49d7060cc858C58D34115fd787`
 
 Automation: `0xA17072a36260a1d1C301ce3e9c3877a9f9Fb4008`
 
